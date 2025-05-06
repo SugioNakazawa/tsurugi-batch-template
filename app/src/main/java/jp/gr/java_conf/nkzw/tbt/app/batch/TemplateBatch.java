@@ -21,33 +21,32 @@ public class TemplateBatch {
     private static final Logger LOG = LoggerFactory.getLogger(TemplateBatch.class);
 
     private TsurugiManager tsurugiManager;
-    private final TemplateBatchConfig batchConfig;
+    private TemplateBatchArgument argument;
 
     public static void main(String[] args) {
         LOG.info("TemplateBatch started");
         // パラメータのパース
         var argument = new TemplateBatchArgument();
-        var commander = JCommander.newBuilder().programName(TemplateBatch.class.getName()).addObject(argument).build();
+        var commander = JCommander.newBuilder()
+                .programName(TemplateBatch.class.getName())
+                .addObject(argument).build();
         commander.parse(args);
         if (argument.isHelp()) {
             commander.usage();
             return;
         }
-        var batchConfig = new TemplateBatchConfig(argument);
-        new TemplateBatch(batchConfig).main();
-
+        new TemplateBatch(argument).main();
     }
 
-    public TemplateBatch(TemplateBatchConfig batchConfig) {
-        this.batchConfig = batchConfig;
+    public TemplateBatch(TemplateBatchArgument argument) {
+        this.argument = argument;
     }
 
     private void main() {
 
         LOG.info("TemplateBatch main start");
         long start = System.currentTimeMillis();
-
-        try (var tsurugiManager = new TsurugiManager()) {
+        try (var tsurugiManager = new TsurugiManager(argument.getEndpoint(), argument.getTimeout())) {
             this.tsurugiManager = tsurugiManager;
 
             prepareProcess();
@@ -87,14 +86,14 @@ public class TemplateBatch {
         for (var key : keyList) {
             taskList.add(new MyTask(this.tsurugiManager, key));
         }
-        LOG.info("task num={}",taskList.size());
+        LOG.info("task num={}", taskList.size());
         // タスクの実行
-        FutureUtil.execute(taskList, 20);
+        FutureUtil.execute(taskList, argument.getThreadSize());
     }
 
-    private List<SampleTable> getTaskKeys(int targetOver) throws IOException, InterruptedException {
+    private List<SampleTable> getTaskKeys(int targetStart) throws IOException, InterruptedException {
         try (var session = tsurugiManager.createSession()) {
-            var list = getSampleTableList(session, targetOver);
+            var list = getSampleTableList(session, targetStart);
             if (list.size() < 1) {
                 LOG.info("対象が存在しません。");
             }

@@ -48,14 +48,13 @@ public class TsurugiManager implements Closeable {
                         sessionTimeOut,
                         TimeUnit.MINUTES);
     }
-    public TsurugiManager() {
-        this.connector = TsurugiConnector.of("tcp://localhost:12345", new UsernamePasswordCredential("user", "password"))
+
+    public TsurugiManager(String endPoint, long timeoutSeconds) {
+        this.connector = TsurugiConnector
+                .of(endPoint, new UsernamePasswordCredential("user", "password"))
                 .setApplicationName("TsurugiManager");
         this.sessionOption = TgSessionOption.of()
-                .setTimeout(
-                        TgTimeoutKey.DEFAULT,
-                        300,
-                        TimeUnit.MINUTES);
+                .setTimeout(TgTimeoutKey.DEFAULT, timeoutSeconds, TimeUnit.SECONDS);
     }
 
     public PsCacheSession createSession() throws IOException {

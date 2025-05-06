@@ -1,11 +1,12 @@
 package data.jp.gr.java_conf.nkzw.tbt.tools.TgData;
 //  genetrated by TgData.
-import com.tsurugidb.iceaxe.sql.result.TgResultMapping;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import com.tsurugidb.iceaxe.sql.result.TgResultMapping;
+import com.tsurugidb.iceaxe.sql.parameter.TgParameterMapping;
 public class SampleTable implements Cloneable {
 private int intCol1;
 private long bigintCol2;
@@ -135,6 +136,7 @@ public void setTimestampWithTimeZoneCol18(OffsetDateTime timestampWithTimeZoneCo
 public OffsetDateTime getTimestampWithTimeZoneCol18() {
 	return this.timestampWithTimeZoneCol18;
 }
+//  genetrated by TgData.
 public static final TgResultMapping<SampleTable> RESULT_MAPPING = TgResultMapping.of(SampleTable::new) //
 .addInt("int_col1", SampleTable::setIntCol1)
 .addLong("bigint_col2", SampleTable::setBigintCol2)
@@ -155,4 +157,38 @@ public static final TgResultMapping<SampleTable> RESULT_MAPPING = TgResultMappin
 .addDateTime("timestamp_col17", SampleTable::setTimestampCol17)
 .addOffsetDateTime("timestamp_with_time_zone_col18", SampleTable::setTimestampWithTimeZoneCol18)
 ;
+//  genetrated by TgData.
+public static final TgParameterMapping<SampleTable> PARAMETER_MAPPING = TgParameterMapping.of(SampleTable.class)
+.addInt("int_col1",SampleTable::getIntCol1)
+.addLong("bigint_col2",SampleTable::getBigintCol2)
+.addFloat("real_col3",SampleTable::getRealCol3)
+.addDouble("double_col4",SampleTable::getDoubleCol4)
+.addDecimal("decimal_col5",SampleTable::getDecimalCol5)
+.addDecimal("decimal_col6",SampleTable::getDecimalCol6)
+.addString("char_col7",SampleTable::getCharCol7)
+.addString("character_col8",SampleTable::getCharacterCol8)
+.addString("varchar_col9",SampleTable::getVarcharCol9)
+.addString("char_varying_col10",SampleTable::getCharVaryingCol10)
+.addString("character_varying_col11",SampleTable::getCharacterVaryingCol11)
+.addBytes("binary_col12",SampleTable::getBinaryCol12)
+.addBytes("varbinary_col13",SampleTable::getVarbinaryCol13)
+.addBytes("binary_varying_col14",SampleTable::getBinaryVaryingCol14)
+.add("date_col15",LocalDate.class, SampleTable::getDateCol15)
+.add("time_col16",LocalTime.class, SampleTable::getTimeCol16)
+.add("timestamp_col17",LocalDateTime.class, SampleTable::getTimestampCol17)
+.add("timestamp_with_time_zone_col18",OffsetDateTime.class, SampleTable::getTimestampWithTimeZoneCol18)
+;
+//  genetrated by TgData.
+public static String toValuesName() {
+return ":int_col1, :bigint_col2, :real_col3, :double_col4, :decimal_col5, :decimal_col6, :char_col7, :character_col8, :varchar_col9, :char_varying_col10, :character_varying_col11, :binary_col12, :varbinary_col13, :binary_varying_col14, :date_col15, :time_col16, :timestamp_col17, :timestamp_with_time_zone_col18";
+}
+//  genetrated by TgData.
+    @Override
+    public SampleTable clone() {
+        try {
+            return (SampleTable) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Cloning not supported", e);
+        }
+    }
 }
