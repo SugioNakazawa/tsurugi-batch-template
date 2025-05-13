@@ -55,7 +55,7 @@ public class TgData {
         if (args.length == 0) {
             // for test
             String[] t_args = { "--excel",
-                    "app/src/test/resources/data/jp/gr/java_conf/nkzw/tbt/tools/TgData/table_design.xlsx",
+                    "tools/src/test/resources/data/jp/gr/java_conf/nkzw/tbt/tools/TgData/table_design.xlsx",
                     "--sheet", "サンプル", // 指定したシートのみを対象
                     "--javaentity", // Javaエンティティソースを出力
                     "--javapackage", "jp.gr.java_conf.nkzw.tbt.app.batch.dao.entity", // Javaソースのパッケージ名を指定
