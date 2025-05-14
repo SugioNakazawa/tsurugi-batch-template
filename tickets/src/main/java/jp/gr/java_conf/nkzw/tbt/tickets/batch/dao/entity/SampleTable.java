@@ -1,4 +1,4 @@
-package jp.gr.java_conf.nkzw.tbt.app.batch.dao.entity;
+package jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity;
 //  genetrated by TgData.
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -49,12 +49,12 @@ public class TgData {
 
     private List<TgTable> tables = new ArrayList<TgTable>();
 
-    public static void main(String[] args) throws IOException, EncryptedDocumentException {
+    public static void main(String[] args) throws IOException, EncryptedDocumentException, InterruptedException {
         LOG.info("TgData main method started");
 
         if (args.length == 0) {
             // for test
-            String[] t_args = { "--excel",
+            String[] t_args1 = { "--excel",
                     "tools/src/test/resources/data/jp/gr/java_conf/nkzw/tbt/tools/TgData/table_design.xlsx",
                     "--sheet", "サンプル", // 指定したシートのみを対象
                     "--javaentity", // Javaエンティティソースを出力
@@ -66,7 +66,19 @@ public class TgData {
                     // "--generatedata", // DML テストデータ生成
                     // "--datacount", "100", // テストデータ件数
             };
-            args = t_args;
+            String[] t_args2 = { "--excel",
+                    "tools/src/test/resources/data/jp/gr/java_conf/nkzw/tbt/tools/TgData/tickets_design.xlsx",
+                    // "--sheet", "サンプル", // 指定したシートのみを対象
+                    "--javaentity", // Javaエンティティソースを出力
+                    "--javapackage", "jp.gr.java_conf.nkzw.tbt.app.batch.dao.entity", // Javaソースのパッケージ名を指定
+                    "--out", "./out",
+                    "--ddl", // DDLを出力
+                    // "--silent", // 生成されたテーブル情報を出力しない
+                    "--createtable", // DDL テーブル作成
+                    "--generatedata", // DML テストデータ生成
+                    "--datacount", "100", // テストデータ件数
+            };
+            args = t_args2;
         }
 
         var commander = JCommander.newBuilder().programName(TgData.class.getName()).addObject(argument).build();
@@ -75,12 +87,8 @@ public class TgData {
             commander.usage();
             return;
         }
-        try {
-            new TgData().run();
-        } catch (EncryptedDocumentException | IOException | InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
+        new TgData().run();
 
         LOG.info("TgData main method finished");
     }

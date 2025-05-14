@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 public class TgDataTest {
     @Test
-    void testMain() throws IOException {
+    void testSsample() throws IOException {
         // Test the main method of TgData
         String[] args = {
                 "--excel",
@@ -28,7 +28,7 @@ public class TgDataTest {
 
         try {
             TgData.main(args);
-        } catch (EncryptedDocumentException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             fail();
         }
@@ -49,6 +49,30 @@ public class TgDataTest {
                     Arrays.equals(
                             Files.readAllBytes(Paths.get(actualFile)),
                             Files.readAllBytes(Paths.get(expectFile))));
+        }
+    }
+    @Test
+    void createTickets() {
+        // Ticketsの定義を生成
+        String[] args = {
+                "--excel",
+                "src/test/resources/data/jp/gr/java_conf/nkzw/tbt/tools/TgData/tickets_design.xlsx",
+                // "--sheet", "サンプル", // シート:部門 のみを対象
+                "--javaentity", // Javaエンティティソースを出力
+                "--javapackage", "jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity", // Javaソースのパッケージ名を指定
+                "--out", "out",
+                "--ddl", // DDLを出力
+                // "--silent", // 生成されたtーえぶる情報を出力しない
+                "--createtable", // DDL テーブル作成
+                "--generatedata", // DML テストデータ生成
+                "--datacount", "100", // テストデータ件数
+        };
+
+        try {
+            TgData.main(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
         }
     }
 }

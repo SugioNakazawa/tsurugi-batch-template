@@ -1,4 +1,4 @@
-package jp.gr.java_conf.nkzw.tbt.app.task;
+package jp.gr.java_conf.nkzw.tbt.tickets.task;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -10,8 +10,8 @@ import com.tsurugidb.iceaxe.transaction.TsurugiTransaction;
 import com.tsurugidb.iceaxe.transaction.exception.TsurugiTransactionException;
 import com.tsurugidb.iceaxe.transaction.option.TgTxOption;
 
-import jp.gr.java_conf.nkzw.tbt.app.batch.dao.SampleTableDao;
-import jp.gr.java_conf.nkzw.tbt.app.batch.dao.entity.SampleTable;
+import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.SampleTableDao;
+import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.SampleTable;
 import jp.gr.java_conf.nkzw.tbt.tools.common.dao.PsCacheSession;
 import jp.gr.java_conf.nkzw.tbt.tools.common.dao.TsurugiManager;
 

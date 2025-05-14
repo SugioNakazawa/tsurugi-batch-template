@@ -46,9 +46,11 @@ public class TgColumn {
             case "TIMESTAMP" -> "LocalDateTime";
             case "TIMESTAMP WITH TIME ZONE" -> "OffsetDateTime";
             case "BINARY", "VARBINARY", "BINARY VARYING" -> "byte[]";
+            case "BOOLEAN" -> "boolean";
             default -> {
-                LOG.warn("unknown type: {}", columnType);
-                yield type_pre;
+                var message = "unknown type: " + columnType;
+                LOG.error(message);
+                throw new IllegalArgumentException(message);
             }
         };
 
@@ -73,9 +75,11 @@ public class TgColumn {
             case "CHAR", "CHARACTER", "VARCHAR", "CHAR VARYING", "CHARACTER VARYING" -> 255;
             case "BINARY", "VARBINARY", "BINARY VARYING" -> 255;
             case "DATE", "TIME", "TIMESTAMP", "TIMESTAMP WITH TIME ZONE" -> 0;
+            case "BOOLEAN" -> 1;
             default -> {
-                LOG.warn("unknown type: {}", columnType);
-                yield 0;
+                var message = "unknown type: " + columnType;
+                LOG.error(message);
+                throw new IllegalArgumentException(message);
             }
         };
     }
@@ -146,9 +150,11 @@ public class TgColumn {
             case "TIMESTAMP" -> "addDateTime";
             case "TIMESTAMP WITH TIME ZONE" -> "addOffsetDateTime";
             case "BINARY", "VARBINARY", "BINARY VARYING" -> "addBytes";
+            case "BOOLEAN" -> "addBoolean";
             default -> {
-                LOG.warn("unknown type: {}", columnType);
-                yield null;
+                var message = "unknown type: " + columnType;
+                LOG.error(message);
+                throw new IllegalArgumentException(message);
             }
         };
     }
@@ -269,8 +275,11 @@ public class TgColumn {
             .append(getJavaType()).append(".class, ");
             case "BINARY", "VARBINARY", "BINARY VARYING" ->
                 sb.append("addBytes(\"").append(columnName).append("\",");
+            case "BOOLEAN" -> sb.append("addBoolean(\"").append(columnName).append("\",");
             default -> {
-                LOG.warn("{} unknown type: {}", tableName, this.columnType);
+                var message = "unknown type: " + columnType;
+                LOG.error(message);
+                throw new IllegalArgumentException(message);
             }
         }
         sb.append(TgStringUtil.toCamelCaseTopUpper(tableName))

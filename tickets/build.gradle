@@ -12,7 +12,7 @@ repositories {
 }
 
 java {
-    mainClassName = 'jp.gr.java_conf.nkzw.tbt.tools.TgData'
+    mainClassName = 'jp.gr.java_conf.nkzw.tbt.tickets.batch.ReserveTicketsBatch'
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }

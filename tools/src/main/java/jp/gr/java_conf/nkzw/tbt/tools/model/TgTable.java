@@ -259,7 +259,7 @@ public class TgTable {
                             throw new AssertionError("Cloning not supported", e);
                         }
                     }
-                """;
+                """.replaceAll("SampleTable", TgStringUtil.toCamelCaseTopUpper(tableName));
     }
 
     public String generateInsertSql() {
