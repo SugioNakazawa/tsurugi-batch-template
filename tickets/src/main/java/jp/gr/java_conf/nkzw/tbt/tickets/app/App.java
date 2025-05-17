@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -34,9 +33,33 @@ import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.Seats;
 
 /**
  * Ticket Reservation System GUI Application
- * 
+ *
  * This class creates a simple GUI for the ticket reservation system.
  * It includes a title label and a button to start the reservation process.
+ * The GUI is created using Swing components.
+ * The main method initializes the GUI and sets the look and feel.
+ * The class also includes a nested class for the seat panel, which displays
+ * the available seats and their status.
+ * The class implements ActionListener to handle button click events.ïø
+ * The GUI includes a status text area to display messages and a controller
+ * panel
+ * with buttons to prepare, assign, and show the reservation status.
+ * The class uses a SwingWorker to perform the assignment of seats in a
+ * background thread, allowing the GUI to remain responsive during the process.
+ * The class also includes methods to refresh the seat panel and display pending
+ * applications.
+ *
+ * チケット予約システムのGUIアプリケーションです。
+ * このクラスは、Swingコンポーネントを使って簡単なGUIを作成します。
+ * タイトルラベルと予約処理を開始するボタンを含みます。
+ * mainメソッドでGUIを初期化し、ルックアンドフィールを設定します。
+ * 座席パネルの内部クラスがあり、利用可能な座席とその状態を表示します。
+ * ActionListenerを実装し、ボタンのクリックイベントを処理します。
+ * ステータステキストエリアでメッセージを表示し、コントローラパネルには
+ * 準備・割当・表示ボタンがあります。
+ * SwingWorkerを使って座席の割当処理をバックグラウンドで実行し、
+ * GUIの応答性を保ちます。
+ * 座席パネルや保留中の申請情報を更新するメソッドも含みます。
  */
 public class App extends JFrame implements ActionListener {
     public class SeatPanel extends JPanel {
