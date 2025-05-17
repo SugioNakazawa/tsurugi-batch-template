@@ -9,19 +9,11 @@ public class ReserveTicketsBatchArgument {
     @Parameter(names = { "--help", "-h" }, arity = 0, description = "print this message", help = true)
     private Boolean help;
 
-    public boolean isHelp() {
-        return (this.help != null) && this.help;
-    }
-
     @Parameter(names = { "--endpoint" }, //
             arity = 1, //
             description = "endpoint for tsurugidb", //
             required = false)
     private String endpoint = System.getProperty("TG_ENDPOINT", "tcp://localhost:12345");
-
-    public String getEndpoint() {
-        return this.endpoint;
-    }
 
     @Parameter(names = { "--timeout" }, //
             arity = 1, //
@@ -29,43 +21,77 @@ public class ReserveTicketsBatchArgument {
             required = false)
     private long timeout = 300L;
 
-    public long getTimeout() {
-        return this.timeout;
-    }
-
     @Parameter(names = { "--threadSize" }, //
             arity = 1, //
             description = "thiread size", //
             required = false)
-    private int threadSize = 8;
+    private int threadSize = 1;
 
-    public int getThreadSize() {
-        return this.threadSize;
-    }
-    @Parameter(names = { "--function","-f" }, //
+    @Parameter(names = { "--function", "-f" }, //
             arity = 1, //
             description = "function: prepare, assign, show", //
             required = false)
-    private String function = "prepare";
-    public String getFunction() {
-        return this.function;
-    }
+    private String function = "show";
+
     /* 1タスクの申込数 */
     @Parameter(names = { "--applicationPerTask" }, //
             arity = 1, //
             description = "application num per task", //
             required = false)
     private int applicationPerTask = 1;
-    public int getApplicationPerTask() {
-        return this.applicationPerTask;
-    }
+
     /* 列数、席数 */
     @Parameter(names = { "--rowSheet" }, //
             arity = 2, //
             description = "row sheet num: [row] [sheet] default 10 10", //
             required = false)
-    private List<Integer> rowShhet = Arrays.asList(10, 10);
-    public  List<Integer> getRowSheet() {
-        return this.rowShhet;
+    private List<Integer> rowSheet = Arrays.asList(10, 10);
+
+    public boolean isHelp() {
+        return (this.help != null) && this.help;
+    }
+
+    public String getEndpoint() {
+        return this.endpoint;
+    }
+
+    public long getTimeout() {
+        return this.timeout;
+    }
+
+    public int getThreadSize() {
+        return this.threadSize;
+    }
+
+    public String getFunction() {
+        return this.function;
+    }
+
+    public int getApplicationPerTask() {
+        return this.applicationPerTask;
+    }
+
+    public List<Integer> getRowSheet() {
+        return this.rowSheet;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setThreadSize(int threadSize) {
+        this.threadSize = threadSize;
+    }
+
+    public void setFunction(String function) {
+        this.function = function;
+    }
+
+    public void setRowSheet(List<Integer> rowSheet) {
+        this.rowSheet = rowSheet;
     }
 }

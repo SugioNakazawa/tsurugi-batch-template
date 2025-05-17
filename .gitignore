@@ -31,3 +31,8 @@ build
 .vscode/
 
 out/
+
+# eclipse
+.settings/
+.classpath
+.project
