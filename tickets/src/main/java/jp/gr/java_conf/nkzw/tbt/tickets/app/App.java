@@ -5,14 +5,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -61,20 +60,56 @@ import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.Seats;
  * GUIの応答性を保ちます。
  * 座席パネルや保留中の申請情報を更新するメソッドも含みます。
  */
-public class App extends JFrame implements ActionListener {
+public class App extends JFrame {
+    /**
+     * SeatPanel class
+     * This class represents the panel that displays the seats in the ticket
+     * reservation system.
+     * It extends JPanel and uses a GridLayout to arrange the seat labels in a
+     * grid.
+     * The class includes methods to set the layout of the seats, update the seat
+     * labels, and change the color of the labels based on their status.
+     * The seat labels are created as JLabel components and added to the panel.
+     * The class also includes a method to set the seats based on the provided
+     * list of Seats objects.
+     * The labels are colored based on whether the seat is reserved or available.
+     * The class uses a LineBorder to create a border around each seat label.
+     * The seat labels are stored in a list for easy access and manipulation.
+     * The class is used in the main App class to display the seat information
+     * in the GUI.
+     */
     public class SeatPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         java.util.List<JLabel> seatLabels;
 
         public SeatPanel() {
             setBackground(Color.darkGray);
-            setLayout(new GridLayout(argument.getRowSheet().get(0),
-                    argument.getRowSheet().get(1)));
+            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSheet().get(0),
+                    reserveTicketsBatch.argument.getRowSheet().get(1)));
             setBorder(BorderFactory.createTitledBorder("Seat"));
             this.seatLabels = new ArrayList<JLabel>();
             var border = new LineBorder(Color.BLACK, 1);
-            for (int i = 0; i < argument.getRowSheet().get(0); i++) {
-                for (int j = 0; j < argument.getRowSheet().get(1); j++) {
+            for (int i = 0; i < reserveTicketsBatch.argument.getRowSheet().get(0); i++) {
+                for (int j = 0; j < reserveTicketsBatch.argument.getRowSheet().get(1); j++) {
+                    var label = new JLabel("0");
+                    seatLabels.add(label);
+                    label.setHorizontalAlignment(JLabel.CENTER);
+                    label.setBorder(border);
+                    label.setForeground(Color.WHITE);
+                    add(label);
+                }
+            }
+        }
+
+        public void setSeatsLayout() {
+            this.removeAll();
+            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSheet().get(0),
+                    reserveTicketsBatch.argument.getRowSheet().get(1)));
+            setBorder(BorderFactory.createTitledBorder("Seat"));
+            this.seatLabels = new ArrayList<JLabel>();
+            var border = new LineBorder(Color.BLACK, 1);
+            for (int i = 0; i < reserveTicketsBatch.argument.getRowSheet().get(0); i++) {
+                for (int j = 0; j < reserveTicketsBatch.argument.getRowSheet().get(1); j++) {
                     var label = new JLabel("0");
                     seatLabels.add(label);
                     label.setHorizontalAlignment(JLabel.CENTER);
@@ -87,40 +122,16 @@ public class App extends JFrame implements ActionListener {
 
         public void setSeats(java.util.List<Seats> seats) {
             for (int i = 0; i < seats.size(); i++) {
-                seatLabels.get(i).setText(String.valueOf(seats.get(i).getAssignedApplicationId()));
-            }
-        }
-    }
-
-    class AssignWorker extends SwingWorker<Void, Void> {
-        AssignWorker() {
-            super();
-        }
-
-        @Override
-        protected Void doInBackground() throws Exception {
-            assignButton.setText("Assigning...");
-            reserveTicketsBatch.allocSeats();
-            return null;
-        }
-
-        @Override
-        protected void done() {
-            try {
-                get();
-                assignButton.setText("Assign");
-                LOG.info("Assignment completed");
-                // Refresh seat panel and pending info after assignment
-                reselectSeats();
-                // seatPanel.setSeats(reserveTicketsBatch.getAllSeats());
-                // seatPanel.revalidate();
-                // seatPanel.repaint();
-                // pendingText.setText(getPendingInfo());
-                // statusText.setText("ready");
-                // controllerPanel.repaint();
-            } catch (Exception e) {
-                LOG.error("Error in worker thread", e);
-                statusText.setText("Error: " + e.getMessage());
+                if (seats.size() > seatLabels.size()) {
+                    break;
+                }
+                var val = seats.get(i).getAssignedApplicationId();
+                if (val == 0) {
+                    seatLabels.get(i).setForeground(Color.RED);
+                } else {
+                    seatLabels.get(i).setForeground(Color.GREEN);
+                }
+                seatLabels.get(i).setText(String.valueOf(val));
             }
         }
     }
@@ -131,28 +142,16 @@ public class App extends JFrame implements ActionListener {
 
     private static final Font STATUS_FONT = new Font("arial", Font.PLAIN, 24);
 
+    private static final int MAX_TICKETS_PER_APPLICATION = 4;
+
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        // String rowInput = JOptionPane.showInputDialog("列数を入力してください");
-        // if (rowInput == null) {
-        // System.out.println("キャンセルされました。");
-        // return;
-        // }
-        // int rowCount = Integer.parseInt(rowInput);
-
-        // String sheetInput = JOptionPane.showInputDialog("席数を入力してください");
-        // if (sheetInput == null) {
-        // System.out.println("キャンセルされました。");
-        // return;
-        // }
-        // int sheetCount = Integer.parseInt(sheetInput);
-
+        // default values
         int rowCount = 20;
         int sheetCount = 20;
-        int threadSize = 8;
+        int threadSize = 2;
 
-        var argument = getArgument(rowCount, sheetCount, threadSize);
-
+        var defaultArgument = getArgument(rowCount, sheetCount, threadSize);
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -164,7 +163,7 @@ public class App extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
-        App app = new App(argument);
+        App app = new App(defaultArgument);
         app.reselectSeats();
         app.setVisible(true);
     }
@@ -180,10 +179,7 @@ public class App extends JFrame implements ActionListener {
         return argument;
     }
 
-    private ReserveTicketsBatchArgument argument;
-
     private ReserveTicketsBatch reserveTicketsBatch;
-    private java.util.List<Seats> seats;
     private JPanel controllerPanel;
     private JTextArea pendingText;
     private JButton prepareButton;
@@ -195,13 +191,13 @@ public class App extends JFrame implements ActionListener {
     private SeatPanel seatPanel;
 
     public App(ReserveTicketsBatchArgument argument) {
-        this.argument = argument;
+
+        // データアクセスはバッチクラスを利用
         this.reserveTicketsBatch = new ReserveTicketsBatch(argument);
-        this.seats = new ArrayList<Seats>();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(10, 10, 1000, 500);
-        setTitle("Practice");
+        setBounds(10, 10, 1200, 800);
+        setTitle("Ticket Reservation System");
 
         this.seatPanel = new SeatPanel();
         getContentPane().add(this.seatPanel, BorderLayout.CENTER);
@@ -213,31 +209,6 @@ public class App extends JFrame implements ActionListener {
         getContentPane().add(this.statusText, BorderLayout.SOUTH);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        LOG.info(getName() + "pushed button");
-        try {
-            if (e.getSource() == prepareButton) {
-                statusText.setText("preparering...");
-                int row = argument.getRowSheet().get(0);
-                int seat = argument.getRowSheet().get(1);
-                reserveTicketsBatch.prepareSeats(row, seat);
-                reserveTicketsBatch.prepareApplications(row * seat, 4);
-            } else if (e.getSource() == assignButton) {
-                statusText.setText("assigning...");
-                var worker = new AssignWorker();
-                worker.execute();
-            } else if (e.getSource() == showButton) {
-                statusText.setText("showing...");
-            }
-            reselectSeats();
-        } catch (IOException | InterruptedException e1) {
-            this.statusText.setText(e1.getMessage());
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-    }
-
     private void reselectSeats() throws IOException, InterruptedException {
         this.seatPanel.setSeats(reserveTicketsBatch.getAllSeats());
         this.seatPanel.revalidate();
@@ -245,7 +216,6 @@ public class App extends JFrame implements ActionListener {
         // pending
         var val = getPendingInfo();
         this.pendingText.setText(val);
-        this.statusText.setText("ready");
         this.controllerPanel.repaint();
     }
 
@@ -266,40 +236,149 @@ public class App extends JFrame implements ActionListener {
         statusText.setSize(200, 200);
         statusText.setLineWrap(true);
         return statusText;
-
     }
 
     private JPanel createControllerPanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(200, 100));
-        panel.setLayout(new GridLayout(6, 1));
-        panel.setBackground(Color.YELLOW);
+        panel.setLayout(new GridLayout(4, 1));
+        panel.setBackground(Color.LIGHT_GRAY);
         panel.setBorder(BorderFactory.createTitledBorder("Controller"));
 
         pendingText = new JTextArea();
         pendingText.setLineWrap(true);
         JScrollPane scrollpane = new JScrollPane(pendingText);
-        scrollpane.setBorder(new TitledBorder("pending num"));
+        scrollpane.setBorder(new TitledBorder("pending applications"));
         panel.add(scrollpane);
 
+        panel.add(createPreparePanel(), BorderLayout.CENTER);
+
+        panel.add(createAssignPanel(), BorderLayout.CENTER);
+
+        showButton = new JButton("Show");
+        showButton.addActionListener(e -> {
+            LOG.info(getName() + "pushed showButton");
+            try {
+                reselectSeats();
+            } catch (IOException | InterruptedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        });
+        panel.add(showButton);
+
+        return panel;
+    }
+
+    private JPanel createPreparePanel() {
+        JPanel panel = new JPanel();
+        panel.setPreferredSize(new Dimension(200, 100));
+        panel.setLayout(new GridLayout(1, 2));
+        panel.setBorder(BorderFactory.createTitledBorder("Prepare"));
+
+        JPanel rowSeatPanel = new JPanel();
+        rowSeatPanel.setLayout(new GridLayout(2, 1));
+
+        JTextArea rowTextArea = new JTextArea(String.valueOf(reserveTicketsBatch.argument.getRowSheet().get(0)));
+        rowTextArea.setBorder(new TitledBorder("row"));
+        rowSeatPanel.add(rowTextArea);
+
+        JTextArea seatTextArea = new JTextArea(String.valueOf(reserveTicketsBatch.argument.getRowSheet().get(1)));
+        seatTextArea.setBorder(new TitledBorder("sea"));
+        rowSeatPanel.add(seatTextArea);
+
+        panel.add(rowSeatPanel);
+
         prepareButton = new JButton("Prepare");
-        prepareButton.addActionListener(this);
+        prepareButton.addActionListener(e -> {
+            LOG.info(getName() + "pushed prepareButton");
+            prepareButton.setText("doing...");
+            prepareButton.repaint();
+            prepareButton.setEnabled(false);
+
+            reserveTicketsBatch.argument.setRowSheet(Arrays.asList(Integer.parseInt(rowTextArea.getText()),
+                    Integer.parseInt(seatTextArea.getText())));
+            this.seatPanel.setSeatsLayout();
+            try {
+                reserveTicketsBatch.prepareSeats(
+                        reserveTicketsBatch.argument.getRowSheet().get(0),
+                        reserveTicketsBatch.argument.getRowSheet().get(1));
+                reserveTicketsBatch.prepareApplications(
+                        reserveTicketsBatch.argument.getRowSheet().get(0)
+                                * reserveTicketsBatch.argument.getRowSheet().get(1),
+                        MAX_TICKETS_PER_APPLICATION);
+                // redrae seat panel
+                reselectSeats();
+            } catch (IOException | InterruptedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            prepareButton.setText("Prepare");
+            prepareButton.setEnabled(true);
+        });
         panel.add(prepareButton);
 
+        return panel;
+    }
+
+    private JPanel createAssignPanel() {
+        JPanel panel = new JPanel();
+        panel.setPreferredSize(new Dimension(200, 100));
+        panel.setLayout(new GridLayout(2, 1));
+        panel.setBorder(BorderFactory.createTitledBorder("Assign"));
+
+        JComboBox<Integer> comboBox = new JComboBox<>();
+        comboBox.setBorder(new TitledBorder("thread size"));
+        for (int i = 1; i <= 64; i++) {
+            comboBox.addItem(i);
+        }
+        comboBox.setSelectedItem(reserveTicketsBatch.argument.getThreadSize());
+        comboBox.addActionListener(e -> {
+            reserveTicketsBatch.argument.setThreadSize((Integer) comboBox.getSelectedItem());
+            LOG.info("Thread size changed to: " + reserveTicketsBatch.argument.getThreadSize());
+        });
+        panel.add(comboBox);
+
         assignButton = new JButton("Assign");
-        // assignButton.addActionListener(this);
         assignButton.addActionListener(e -> {
             LOG.info(getName() + "pushed assignButton");
-            // worker.execute();
+            statusText.setText("assigning...");
+            assignButton.setEnabled(false);
+
             var worker = new AssignWorker();
             worker.execute();
         });
         panel.add(assignButton);
 
-        showButton = new JButton("Show");
-        panel.add(showButton);
-        showButton.addActionListener(this);
-
         return panel;
+    }
+
+    class AssignWorker extends SwingWorker<Long, Void> {
+        AssignWorker() {
+            super();
+        }
+
+        @Override
+        protected Long doInBackground() throws Exception {
+            assignButton.setText("doing...");
+            var ret = reserveTicketsBatch.allocSeats();
+            return ret;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                long eraps = get();
+                LOG.info("Assignment completed");
+                assignButton.setText("Assign");
+                assignButton.setEnabled(true);
+                // Refresh seat panel and pending info after assignment
+                statusText.setText(String.format("eraps %,d ms", eraps));
+                reselectSeats();
+            } catch (Exception e) {
+                LOG.error("Error in worker thread", e);
+                statusText.setText("Error: " + e.getMessage());
+            }
+        }
     }
 }

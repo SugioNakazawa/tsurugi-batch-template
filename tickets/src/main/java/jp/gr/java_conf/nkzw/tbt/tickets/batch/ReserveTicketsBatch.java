@@ -26,7 +26,7 @@ public class ReserveTicketsBatch {
     private static final Logger LOG = LoggerFactory.getLogger(ReserveTicketsBatch.class);
 
     private TsurugiManager tsurugiManager;
-    private ReserveTicketsBatchArgument argument;
+    public ReserveTicketsBatchArgument argument;
 
     public static void main(String[] args) {
         String[] defaultArgs = {
@@ -93,8 +93,8 @@ public class ReserveTicketsBatch {
         }
     }
 
-    public void allocSeats() throws IOException, InterruptedException {
-        LOG.info("allocSeats start");
+    public long allocSeats() throws IOException, InterruptedException {
+        LOG.info("allocSeats start threadSize={}", argument.getThreadSize());
         long start = System.currentTimeMillis();
         // 実行タスクを作成
         var taskList = generateTask();
@@ -102,10 +102,11 @@ public class ReserveTicketsBatch {
         // タスクの実行
         FutureUtil.execute(taskList, argument.getThreadSize());
 
-        long end = System.currentTimeMillis();
-        long executeTime = TimeUnit.MILLISECONDS.toMillis(end - start);
+        long eraps = System.currentTimeMillis() - start;
+        long executeTime = TimeUnit.MILLISECONDS.toMillis(eraps - start);
         LOG.info("allocSeats {} ms", executeTime);
 
+        return eraps;
     }
 
     private List<AllocTask> generateTask() throws IOException, InterruptedException {
