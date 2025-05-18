@@ -25,14 +25,12 @@ public class AllocTask implements Callable<Void> {
     /* 空席検索を開始する列 */
     private int startRow;
     private int maxRow;
-    private int searchDirection;
 
     public AllocTask(TsurugiManager tsurugiManager, int startRow, int maxRow) {
-        // TODO: tsurugiManaderは引数にあるべき？
+
         this.tsurugiManager = tsurugiManager;
         this.startRow = startRow;
         this.maxRow = maxRow;
-        this.searchDirection = startRow % 4;
         this.applications = new ArrayList<>();
     }
 
@@ -72,7 +70,6 @@ public class AllocTask implements Callable<Void> {
             var foundSeats = new ArrayList<Seats>();
             for (int i = 0; i < maxRow; i++) {
                 int curRow = (startRow + i - 1) % maxRow + 1;
-                // int curRow = (startRow + (i * searchDirection) - 1) % maxRow + 1;
                 // 対象列の空席を検索
                 var vacabtSeats = dao.selectVacantSeats(transaction, curRow);
                 LOG.debug("vacantSeats row: {} seats [{}]", curRow,
@@ -88,9 +85,9 @@ public class AllocTask implements Callable<Void> {
                         application.setAssignedFlag(1);
                         dao.updateApplicationsAssignedFlag(transaction, application);
                         // 空席を更新
-                        for (var sheet : foundSeats) {
-                            sheet.setAssignedApplicationId(application.getId());
-                            dao.updateSeatsAssignedFlag(transaction, sheet);
+                        for (var seat : foundSeats) {
+                            seat.setAssignedApplicationId(application.getId());
+                            dao.updateSeatsAssignedFlag(transaction, seat);
                         }
                         LOG.debug("reserved num:{} row:{} seats:[{}]",
                                 application.getApplyNum(),
@@ -107,7 +104,6 @@ public class AllocTask implements Callable<Void> {
                         application.getApplyNum());
             }
         }
-        // TODO Auto-generated method stub
         LOG.debug("execute startRow: {} app.size: {} appIds: [{}]",
                 startRow,
                 applications.size(),
@@ -117,18 +113,18 @@ public class AllocTask implements Callable<Void> {
     private List<Seats> searchVacantsRow(Applications application, List<Seats> vacabtSeats) {
         boolean isContinuous = true;
         var foundSeats = new ArrayList<Seats>();
-        for (int curSheet = 0; curSheet < vacabtSeats.size(); curSheet++) {
+        for (int curSeat = 0; curSeat < vacabtSeats.size(); curSeat++) {
             isContinuous = true;
             foundSeats.clear();
-            foundSeats.add(vacabtSeats.get(curSheet));
+            foundSeats.add(vacabtSeats.get(curSeat));
             // 申込席数分の連続席を確認
             for (int j = 1; j < application.getApplyNum(); j++) {
-                if (vacabtSeats.get(curSheet + j).getSeatNo() != vacabtSeats.get(curSheet).getSeatNo() + j) {
+                if (vacabtSeats.get(curSeat + j).getSeatNo() != vacabtSeats.get(curSeat).getSeatNo() + j) {
                     // 連続していない
                     isContinuous = false;
                     break;
                 } else {
-                    foundSeats.add(vacabtSeats.get(curSheet + j));
+                    foundSeats.add(vacabtSeats.get(curSeat + j));
                 }
             }
             if (isContinuous) {

@@ -10,7 +10,6 @@ import com.tsurugidb.iceaxe.sql.parameter.TgBindParameters;
 import com.tsurugidb.iceaxe.sql.parameter.TgBindVariable;
 import com.tsurugidb.iceaxe.sql.parameter.TgBindVariable.TgBindVariableInteger;
 import com.tsurugidb.iceaxe.sql.parameter.TgBindVariable.TgBindVariableLong;
-import com.tsurugidb.iceaxe.sql.parameter.TgBindVariables;
 import com.tsurugidb.iceaxe.sql.parameter.TgParameterMapping;
 import com.tsurugidb.iceaxe.transaction.TsurugiTransaction;
 import com.tsurugidb.iceaxe.transaction.exception.TsurugiTransactionException;
@@ -29,8 +28,7 @@ public class TicketsDao extends TsurugiDao {
 
     // select + from sample_table where int_col1 >= :min;
     private static final TgBindVariableInteger ROW = TgBindVariable.ofInt("row");
-    private static final TgBindVariableInteger SEAT = TgBindVariable.ofInt("sheet");
-    private static final TgBindVariableLong MIN = TgBindVariable.ofLong("min");
+    private static final TgBindVariableInteger SEAT = TgBindVariable.ofInt("seat");
     private static final TgBindVariableLong ID = TgBindVariable.ofLong("id");
     private static final TgBindVariableLong ASSIGNED_APPLICATION_ID = TgBindVariable.ofLong("assigned_application_id");
     private static final TgBindVariableInteger ASSIGNED_FLAG = TgBindVariable.ofInt("assigned_flag");
@@ -39,7 +37,7 @@ public class TicketsDao extends TsurugiDao {
         String sql = """
                 SELECT * FROM seats
                 WHERE row_no = :row
-                AND seat_no = :sheet
+                AND seat_no = :seat
                 """;
         var parameterMapping = TgParameterMapping.of(ROW, SEAT);
         var resultMapping = Seats.RESULT_MAPPING;

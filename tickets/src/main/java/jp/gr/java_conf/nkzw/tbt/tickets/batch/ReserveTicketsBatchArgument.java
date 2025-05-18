@@ -41,11 +41,11 @@ public class ReserveTicketsBatchArgument {
     private int applicationPerTask = 1;
 
     /* 列数、席数 */
-    @Parameter(names = { "--rowSheet" }, //
+    @Parameter(names = { "--rowSeat" }, //
             arity = 2, //
-            description = "row sheet num: [row] [sheet] default 10 10", //
+            description = "row seat num: [row] [seat] default 10 10", //
             required = false)
-    private List<Integer> rowSheet = Arrays.asList(10, 10);
+    private List<Integer> rowSeat = Arrays.asList(10, 10);
 
     public boolean isHelp() {
         return (this.help != null) && this.help;
@@ -71,8 +71,8 @@ public class ReserveTicketsBatchArgument {
         return this.applicationPerTask;
     }
 
-    public List<Integer> getRowSheet() {
-        return this.rowSheet;
+    public List<Integer> getRowSeat() {
+        return this.rowSeat;
     }
 
     public void setEndpoint(String endpoint) {
@@ -91,7 +91,7 @@ public class ReserveTicketsBatchArgument {
         this.function = function;
     }
 
-    public void setRowSheet(List<Integer> rowSheet) {
-        this.rowSheet = rowSheet;
+    public void setRowSeat(List<Integer> rowSeat) {
+        this.rowSeat = rowSeat;
     }
 }

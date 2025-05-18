@@ -5,3 +5,4 @@ apply_num INT,
 assigned_flag INT,
 PRIMARY KEY (id)
 );
+

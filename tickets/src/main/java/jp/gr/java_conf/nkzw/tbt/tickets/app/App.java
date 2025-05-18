@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -84,13 +85,13 @@ public class App extends JFrame {
 
         public SeatPanel() {
             setBackground(Color.darkGray);
-            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSheet().get(0),
-                    reserveTicketsBatch.argument.getRowSheet().get(1)));
+            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSeat().get(0),
+                    reserveTicketsBatch.argument.getRowSeat().get(1)));
             setBorder(BorderFactory.createTitledBorder("Seat"));
             this.seatLabels = new ArrayList<JLabel>();
             var border = new LineBorder(Color.BLACK, 1);
-            for (int i = 0; i < reserveTicketsBatch.argument.getRowSheet().get(0); i++) {
-                for (int j = 0; j < reserveTicketsBatch.argument.getRowSheet().get(1); j++) {
+            for (int i = 0; i < reserveTicketsBatch.argument.getRowSeat().get(0); i++) {
+                for (int j = 0; j < reserveTicketsBatch.argument.getRowSeat().get(1); j++) {
                     var label = new JLabel("0");
                     seatLabels.add(label);
                     label.setHorizontalAlignment(JLabel.CENTER);
@@ -103,13 +104,13 @@ public class App extends JFrame {
 
         public void setSeatsLayout() {
             this.removeAll();
-            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSheet().get(0),
-                    reserveTicketsBatch.argument.getRowSheet().get(1)));
+            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSeat().get(0),
+                    reserveTicketsBatch.argument.getRowSeat().get(1)));
             setBorder(BorderFactory.createTitledBorder("Seat"));
             this.seatLabels = new ArrayList<JLabel>();
             var border = new LineBorder(Color.BLACK, 1);
-            for (int i = 0; i < reserveTicketsBatch.argument.getRowSheet().get(0); i++) {
-                for (int j = 0; j < reserveTicketsBatch.argument.getRowSheet().get(1); j++) {
+            for (int i = 0; i < reserveTicketsBatch.argument.getRowSeat().get(0); i++) {
+                for (int j = 0; j < reserveTicketsBatch.argument.getRowSeat().get(1); j++) {
                     var label = new JLabel("0");
                     seatLabels.add(label);
                     label.setHorizontalAlignment(JLabel.CENTER);
@@ -144,14 +145,14 @@ public class App extends JFrame {
 
     private static final int MAX_TICKETS_PER_APPLICATION = 4;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
 
         // default values
         int rowCount = 20;
-        int sheetCount = 20;
+        int seatCount = 20;
         int threadSize = 2;
 
-        var defaultArgument = getArgument(rowCount, sheetCount, threadSize);
+        var defaultArgument = getArgument(rowCount, seatCount, threadSize);
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -164,18 +165,23 @@ public class App extends JFrame {
         }
 
         App app = new App(defaultArgument);
-        app.reselectSeats();
+        try {
+            app.reselectSeats();
+        } catch (IOException | InterruptedException e) {
+            LOG.error("Error in main method", e);
+            e.printStackTrace();
+        }
         app.setVisible(true);
     }
 
-    private static ReserveTicketsBatchArgument getArgument(int row, int sheet, int threadSize) {
+    private static ReserveTicketsBatchArgument getArgument(int row, int seat, int threadSize) {
         // 引数の設定
         var argument = new ReserveTicketsBatchArgument();
         argument.setFunction("show");
         argument.setEndpoint("tcp://localhost:12345");
         argument.setTimeout(300L);
         argument.setThreadSize(threadSize);
-        argument.setRowSheet(Arrays.asList(row, sheet));
+        argument.setRowSeat(Arrays.asList(row, seat));
         return argument;
     }
 
@@ -261,13 +267,19 @@ public class App extends JFrame {
             try {
                 reselectSeats();
             } catch (IOException | InterruptedException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
+                errorDialog(e1.getMessage());
             }
         });
         panel.add(showButton);
 
         return panel;
+    }
+
+    private void errorDialog(String message) {
+
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        LOG.error("Error: " + message);
     }
 
     private JPanel createPreparePanel() {
@@ -279,11 +291,11 @@ public class App extends JFrame {
         JPanel rowSeatPanel = new JPanel();
         rowSeatPanel.setLayout(new GridLayout(2, 1));
 
-        JTextArea rowTextArea = new JTextArea(String.valueOf(reserveTicketsBatch.argument.getRowSheet().get(0)));
+        JTextArea rowTextArea = new JTextArea(String.valueOf(reserveTicketsBatch.argument.getRowSeat().get(0)));
         rowTextArea.setBorder(new TitledBorder("row"));
         rowSeatPanel.add(rowTextArea);
 
-        JTextArea seatTextArea = new JTextArea(String.valueOf(reserveTicketsBatch.argument.getRowSheet().get(1)));
+        JTextArea seatTextArea = new JTextArea(String.valueOf(reserveTicketsBatch.argument.getRowSeat().get(1)));
         seatTextArea.setBorder(new TitledBorder("sea"));
         rowSeatPanel.add(seatTextArea);
 
@@ -296,22 +308,22 @@ public class App extends JFrame {
             prepareButton.repaint();
             prepareButton.setEnabled(false);
 
-            reserveTicketsBatch.argument.setRowSheet(Arrays.asList(Integer.parseInt(rowTextArea.getText()),
+            reserveTicketsBatch.argument.setRowSeat(Arrays.asList(Integer.parseInt(rowTextArea.getText()),
                     Integer.parseInt(seatTextArea.getText())));
             this.seatPanel.setSeatsLayout();
             try {
                 reserveTicketsBatch.prepareSeats(
-                        reserveTicketsBatch.argument.getRowSheet().get(0),
-                        reserveTicketsBatch.argument.getRowSheet().get(1));
+                        reserveTicketsBatch.argument.getRowSeat().get(0),
+                        reserveTicketsBatch.argument.getRowSeat().get(1));
                 reserveTicketsBatch.prepareApplications(
-                        reserveTicketsBatch.argument.getRowSheet().get(0)
-                                * reserveTicketsBatch.argument.getRowSheet().get(1),
+                        reserveTicketsBatch.argument.getRowSeat().get(0)
+                                * reserveTicketsBatch.argument.getRowSeat().get(1),
                         MAX_TICKETS_PER_APPLICATION);
                 // redrae seat panel
                 reselectSeats();
             } catch (IOException | InterruptedException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
+                errorDialog(e1.getMessage());
             }
             prepareButton.setText("Prepare");
             prepareButton.setEnabled(true);
@@ -378,6 +390,7 @@ public class App extends JFrame {
             } catch (Exception e) {
                 LOG.error("Error in worker thread", e);
                 statusText.setText("Error: " + e.getMessage());
+                errorDialog(e.getMessage());
             }
         }
     }

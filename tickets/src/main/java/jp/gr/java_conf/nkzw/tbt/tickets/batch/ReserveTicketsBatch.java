@@ -10,14 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 
-import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.SampleTableDao;
 import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.TicketsDao;
 import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.Applications;
-import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.SampleTable;
 import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.Seats;
 import jp.gr.java_conf.nkzw.tbt.tickets.task.AllocTask;
-import jp.gr.java_conf.nkzw.tbt.tickets.task.MyTask;
-import jp.gr.java_conf.nkzw.tbt.tools.common.dao.PsCacheSession;
 import jp.gr.java_conf.nkzw.tbt.tools.common.dao.TsurugiManager;
 import jp.gr.java_conf.nkzw.tbt.tools.common.util.FutureUtil;
 
@@ -30,8 +26,8 @@ public class ReserveTicketsBatch {
 
     public static void main(String[] args) {
         String[] defaultArgs = {
-                "-f", "assign",
-                "--rowSheet", "40", "40",
+                "-f", "show",
+                "--rowSeat", "40", "40",
                 "--threadSize", "3",
                 // "--applicationPerTask", "10",
         };
@@ -57,8 +53,8 @@ public class ReserveTicketsBatch {
     public void run() {
 
         LOG.info("run start row={} seat={} threadSize={} aoolicationPerTask={}",
-                argument.getRowSheet().get(0),
-                argument.getRowSheet().get(1),
+                argument.getRowSeat().get(0),
+                argument.getRowSeat().get(1),
                 argument.getThreadSize(),
                 argument.getApplicationPerTask());
 
@@ -66,12 +62,12 @@ public class ReserveTicketsBatch {
         try {
             switch (argument.getFunction()) {
                 case "prepare":
-                    prepare(argument.getRowSheet().get(0), argument.getRowSheet().get(1));
+                    prepare(argument.getRowSeat().get(0), argument.getRowSeat().get(1));
                     break;
                 case "assign":
-                    prepare(argument.getRowSheet().get(0), argument.getRowSheet().get(1));
+                    prepare(argument.getRowSeat().get(0), argument.getRowSeat().get(1));
                     allocSeats();
-                    showSeats();
+                    // showSeats();
                     break;
                 case "show":
                     show();
@@ -119,16 +115,16 @@ public class ReserveTicketsBatch {
         // タスクはコミット単位
         List<AllocTask> taskList = new ArrayList<>();
         // 各タスクが空席検索を開始する列のずれ
-        int deltaRow = argument.getRowSheet().get(0) / argument.getThreadSize() / 2;
+        int deltaRow = argument.getRowSeat().get(0) / argument.getThreadSize() / 2;
         deltaRow = deltaRow < 1 ? 1 : deltaRow;
         LOG.info("deltaRow={}", deltaRow);
         int startRow = 1;
         // 1タスクには指定数分の申込を入れる。
-        int maxRow = argument.getRowSheet().get(0);
+        int maxRow = argument.getRowSeat().get(0);
         var task = new AllocTask(
                 this.tsurugiManager,
                 startRow,
-                argument.getRowSheet().get(0));
+                argument.getRowSeat().get(0));
         for (int i = 0; i < applications.size(); i++) {
             task.addApplication(applications.get(i));
             // 申込数が指定数に達したら次のタスクを生成
@@ -140,48 +136,7 @@ public class ReserveTicketsBatch {
                 startRow = startRow > maxRow ? 1 : startRow;
                 // patter 2
                 // startRow = (startRow + 1) > maxRow ? 1 : (startRow + 1);
-                task = new AllocTask(this.tsurugiManager, startRow, argument.getRowSheet().get(0));
-            }
-        }
-        // 最後のタスクを追加
-        if (task.getApplications().size() > 0) {
-            taskList.add(task);
-        }
-        return taskList;
-    }
-
-    private List<AllocTask> generateTask2() throws IOException, InterruptedException {
-        // 全ての申込を取得してタスクに振り分ける
-        List<Applications> applications = getAllApplications();
-        if (applications.size() < 1) {
-            LOG.info("対象が存在しません。");
-            return null;
-        }
-        // タスクはコミット単位
-        List<AllocTask> taskList = new ArrayList<>();
-        // 各タスクが空席検索を開始する列のずれ
-        int deltaRow = argument.getRowSheet().get(0) / argument.getThreadSize();
-        deltaRow = deltaRow < 1 ? 1 : deltaRow;
-        LOG.info("deltaRow={}", deltaRow);
-        int startRow = 1;
-        // 1タスクには指定数分の申込を入れる。
-        int maxRow = argument.getRowSheet().get(0);
-        var task = new AllocTask(
-                this.tsurugiManager,
-                startRow++,
-                argument.getRowSheet().get(0));
-        for (int i = 0; i < applications.size(); i++) {
-            task.addApplication(applications.get(i));
-            // 申込数が指定数に達したら次のタスクを生成
-            if (task.getApplications().size() >= argument.getApplicationPerTask()) {
-                // タスクの実行
-                taskList.add(task);
-                // patter 1
-                // startRow = startRow + deltaRow;
-                // startRow = startRow > maxRow ? 1 : startRow;
-                // patter 2
-                // startRow = (startRow + 1) > maxRow ? 1 : (startRow + 1);
-                task = new AllocTask(this.tsurugiManager, startRow++, argument.getRowSheet().get(0));
+                task = new AllocTask(this.tsurugiManager, startRow, argument.getRowSeat().get(0));
             }
         }
         // 最後のタスクを追加
@@ -203,8 +158,8 @@ public class ReserveTicketsBatch {
             LOG.info("対象が存在しません。");
         } else {
             StringBuilder sb = new StringBuilder("Assigned Seats\n");
-            for (int i = 0; i < argument.getRowSheet().get(0); i++) {
-                for (int j = 0; j < argument.getRowSheet().get(1); j++) {
+            for (int i = 0; i < argument.getRowSeat().get(0); i++) {
+                for (int j = 0; j < argument.getRowSeat().get(1); j++) {
                     var entity = find(seats, i + 1, j + 1);
                     sb.append(String.format("%4d ", entity.getAssignedApplicationId()));
                 }
@@ -329,53 +284,6 @@ public class ReserveTicketsBatch {
         } catch (Exception e) {
             LOG.error("prepare error", e);
         }
-    }
-
-    private void prepareProcess() throws IOException, InterruptedException {
-        try (var session = tsurugiManager.createSession()) {
-            var dao = new SampleTableDao(session);
-            tsurugiManager.executeOcc("prepareProcess", session, (s, transaction) -> {
-                int count = dao.deleteSampleTable(transaction, 100);
-                LOG.info("delete SampleTable num={}", count);
-            });
-        }
-    }
-
-    private void executeProcess() throws IOException, InterruptedException {
-        var taskList = new ArrayList<MyTask>(10);
-
-        // 繰り返し処理のキー情報を取得
-        var keyList = getTaskKeys(0);
-        for (var key : keyList) {
-            taskList.add(new MyTask(this.tsurugiManager, key));
-        }
-        LOG.info("task num={}", taskList.size());
-        // タスクの実行
-        FutureUtil.execute(taskList, argument.getThreadSize());
-    }
-
-    private List<SampleTable> getTaskKeys(int targetStart) throws IOException, InterruptedException {
-        try (var session = tsurugiManager.createSession()) {
-            var list = getSampleTableList(session, targetStart);
-            if (list.size() < 1) {
-                LOG.info("対象が存在しません。");
-            }
-            return list;
-        }
-    }
-
-    private List<SampleTable> getSampleTableList(PsCacheSession session, long min)
-            throws IOException, InterruptedException {
-        List<SampleTable> list = new ArrayList<>();
-
-        var dao = new SampleTableDao(session);
-
-        list = this.tsurugiManager.executeOcc(
-                getClass().getSimpleName() + "getSampleTableList",
-                session, (s, transaction) -> {
-                    return dao.selectSampleTable(transaction, min);
-                });
-        return list;
     }
 
     private void postProcess() {

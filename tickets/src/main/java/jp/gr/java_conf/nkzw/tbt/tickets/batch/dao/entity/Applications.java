@@ -1,13 +1,7 @@
 package jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity;
 
-//  genetrated by TgData.
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import com.tsurugidb.iceaxe.sql.result.TgResultMapping;
 import com.tsurugidb.iceaxe.sql.parameter.TgParameterMapping;
+import com.tsurugidb.iceaxe.sql.result.TgResultMapping;
 
 public class Applications implements Cloneable {
     private long id;

@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-import org.apache.poi.EncryptedDocumentException;
 import org.junit.jupiter.api.Test;
 
 public class TgDataTest {
@@ -51,6 +50,7 @@ public class TgDataTest {
                             Files.readAllBytes(Paths.get(expectFile))));
         }
     }
+
     @Test
     void createTickets() {
         // Ticketsの定義を生成
