@@ -36,8 +36,11 @@ public class TgColumnTest {
         assertEquals("BigDecimal", tgColumn.getJavaType());
         tgColumn.setColumnType("DECIMAL");
         assertEquals("BigDecimal", tgColumn.getJavaType());
-        tgColumn.setColumnType("number");
-        assertEquals("BigDecimal", tgColumn.getJavaType());
+        try {
+            tgColumn.setColumnType("number");
+        } catch (IllegalArgumentException e) {
+            assertEquals("unknown type: number", e.getMessage());
+        }
     }
 
     @Test

@@ -8,7 +8,38 @@
 plugins {
     // Apply the foojay-resolver plugin to allow automatic download of JDKs
     id "org.gradle.toolchains.foojay-resolver-convention" version "0.9.0"
+    // id 'jacoco'
 }
 
 rootProject.name = "tsurugi-batch-template"
 include("app", "tickets", "tools")
+
+// for jacoco
+// jacoco {
+//     applyTo tasks.run // runタスクにJacocoを適用
+// }
+
+// test.finalizedBy jacocoTestReport
+
+// def coverageExcludeFiles = [
+// 		// 内部クラスやLambda匿名クラスを排除
+// 		'**/*$*.class',
+// 		'**/*$lambda$*.class',
+// ]
+
+// jacocoTestReport {
+//     reports {
+//         html.required = true // HTML レポートを有効化
+//         xml.required = false // XML レポートは無効化（必要に応じて変更可能）
+//     }
+//     // Jacoco のクラスファイル設定を後から評価して適用
+//     afterEvaluate {
+//         // クラスディレクトリのファイルリストを収集し、除外設定を適用
+//         classDirectories = files(classDirectories.files.collect {
+//             fileTree(
+//                 dir: it, // 各クラスファイルのディレクトリ
+//                 exclude: coverageExcludeFiles // 除外するクラスファイルパターン
+//             )
+//         })
+//     }
+// }
