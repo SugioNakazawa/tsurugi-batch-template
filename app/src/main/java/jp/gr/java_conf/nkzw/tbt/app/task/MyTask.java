@@ -28,10 +28,6 @@ public class MyTask implements Callable<Void> {
         this.sampleTable = sampleTable;
     }
 
-    private SampleTable getSampleTable() {
-        return sampleTable;
-    }
-
     @Override
     public Void call() throws IOException, InterruptedException {
         var session = tsurugiManager.createSession();
@@ -58,7 +54,7 @@ public class MyTask implements Callable<Void> {
         var dao = new SampleTableDao(session);
         var target = this.sampleTable.clone();
         target.setIntCol1(target.getIntCol1() + 1000);
-        dao.insertPcvSogoTenkai(transactio, target);
+        dao.insertSampleTable(transactio, target);
         LOG.info("MyTask execute int_col1={}", this.sampleTable.getIntCol1());
     }
 

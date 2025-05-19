@@ -43,17 +43,18 @@ public class SampleTableDao extends TsurugiDao {
     }
 
     // insert into sample_table values(int_col1. ...);
-    private final StatementCache<SampleTable> insertPcvSogoTenkai = new StatementCache<>(session -> {
+    private final StatementCache<SampleTable> insertSampleTable = new StatementCache<>(session -> {
         var sql = "INSERT INTO sample_table VALUES(" + SampleTable.toValuesName() + ")";
         var parameterMapping = SampleTable.PARAMETER_MAPPING;
         return session.createStatement(sql, parameterMapping);
     });
 
-    public void insertPcvSogoTenkai(TsurugiTransaction transaction, SampleTable entity)
+    public int insertSampleTable(TsurugiTransaction transaction, SampleTable entity)
             throws IOException, InterruptedException, TsurugiTransactionException {
-        var ps = insertPcvSogoTenkai.get();
-        transaction.executeAndGetCount(ps, entity);
+        var ps = insertSampleTable.get();
+        return transaction.executeAndGetCount(ps, entity);
     }
+
 
     // delete from sample_table where int_col1 > value;
     private static final TgBindVariableInteger INT_COL1 = TgBindVariable.ofInt("int_col1");
