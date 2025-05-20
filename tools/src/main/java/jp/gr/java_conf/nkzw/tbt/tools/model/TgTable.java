@@ -79,24 +79,28 @@ public class TgTable {
         return "}\n";
     }
 
+    public String getDropTableDef() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("DROP TABLE IF EXISTS ").append(tableName).append(";\n");
+        return sb.toString();
+    }
+
     public String getDdlDef() {
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE TABLE ")
-                .append(tableName)
-                .append(" (\n");
-        for (int i = 0; i < columns.size(); i++) {
-            var column = columns.get(i);
-            sb.append(column.getColumnName())
-                    .append(" ")
-                    .append(column.getColumnType());
-            if (i < columns.size() - 1) {
+
+        // create table
+        sb.append("CREATE TABLE ").append(tableName).append(" (\n");
+        for(var column : columns) {
+            sb.append(column.getDdlDef());
+            // カンマ区切り
+            if (columns.indexOf(column) < columns.size() - 1) {
                 sb.append(",\n");
+            }else {
+                sb.append("\n");
             }
         }
         // primary key
-        sb.append(",\n");
-        sb.append(genetatePrimaryKey());
-        sb.append("\n);\n");
+        sb.append(",\n").append(genetatePrimaryKey()).append("\n);\n");
 
         return sb.toString();
     }
@@ -151,6 +155,7 @@ public class TgTable {
 
         return sb.toString();
     }
+
     private String getParameterMappingDefStr() {
         StringBuilder sb = new StringBuilder();
         sb.append("public static final TgParameterMapping<")

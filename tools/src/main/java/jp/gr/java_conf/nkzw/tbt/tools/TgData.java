@@ -52,35 +52,6 @@ public class TgData {
     public static void main(String[] args) throws IOException, EncryptedDocumentException, InterruptedException {
         LOG.info("TgData main method started");
 
-        if (args.length == 0) {
-            // for test
-            String[] t_args1 = { "--excel",
-                    "tools/src/test/resources/data/jp/gr/java_conf/nkzw/tbt/tools/TgData/table_design.xlsx",
-                    "--sheet", "サンプル", // 指定したシートのみを対象
-                    "--javaentity", // Javaエンティティソースを出力
-                    "--javapackage", "jp.gr.java_conf.nkzw.tbt.app.batch.dao.entity", // Javaソースのパッケージ名を指定
-                    "--out", "./out",
-                    "--ddl", // DDLを出力
-                    // "--silent", // 生成されたテーブル情報を出力しない
-                    // "--createtable", // DDL テーブル作成
-                    // "--generatedata", // DML テストデータ生成
-                    // "--datacount", "100", // テストデータ件数
-            };
-            String[] t_args2 = { "--excel",
-                    "tools/src/test/resources/data/jp/gr/java_conf/nkzw/tbt/tools/TgData/tickets_design.xlsx",
-                    // "--sheet", "サンプル", // 指定したシートのみを対象
-                    "--javaentity", // Javaエンティティソースを出力
-                    "--javapackage", "jp.gr.java_conf.nkzw.tbt.app.batch.dao.entity", // Javaソースのパッケージ名を指定
-                    "--out", "./out",
-                    "--ddl", // DDLを出力
-                    // "--silent", // 生成されたテーブル情報を出力しない
-                    "--createtable", // DDL テーブル作成
-                    "--generatedata", // DML テストデータ生成
-                    "--datacount", "100", // テストデータ件数
-            };
-            args = t_args2;
-        }
-
         var commander = JCommander.newBuilder().programName(TgData.class.getName()).addObject(argument).build();
         commander.parse(args);
         if (argument.isHelp()) {
@@ -187,8 +158,11 @@ public class TgData {
 
     private void writeDdlFiles() throws IOException {
         for (var table : this.tables) {
-            var outputDdl = new StringBuilder(table.getDdlDef());
-            outputDdl.append("\n");
+            var outputDdl = new StringBuilder();
+            // テーブル削除
+            outputDdl.append(table.getDropTableDef()).append("\n");
+            // テーブル作成
+            outputDdl.append(table.getDdlDef()).append("\n");
             // インデックス作成
             for (var indexDef : table.getIndexDefs()) {
                 outputDdl.append(indexDef).append("\n");
@@ -266,15 +240,26 @@ public class TgData {
                 if (row == null) {
                     break;
                 }
+                // カラム名称（論理名）
+                var columnExplainCell = row.getCell(1).getStringCellValue().trim();
+                // カラム名
                 var culumnCell = row.getCell(2).getStringCellValue().trim();
                 if ((culumnCell == null) || culumnCell.toString().isEmpty()) {
                     break;
                 }
+                // タイプ・サイズ
                 var typeCell = row.getCell(3).getStringCellValue().trim().toUpperCase();
                 if (typeCell == null) {
                     break;
                 }
-                table.addCulmn(new TgColumn(culumnCell, typeCell));
+                // NULL制約
+                var nullCell = row.getCell(4).getStringCellValue().trim();
+                // デフォルト値
+                var defaultCell = row.getCell(5).getStringCellValue().trim();
+                // コメント
+                var commentCell = row.getCell(6).getStringCellValue().trim();
+
+                table.addCulmn(new TgColumn(columnExplainCell, culumnCell, typeCell, nullCell, defaultCell, commentCell));
                 // LOG.debug("columnName: {}, type: {}", culumnCell.toString(),
                 // typeCell.toString());
             }

@@ -43,19 +43,19 @@ public class MyTask implements Callable<Void> {
         }
         // 出力件数が多いため間引いて出力
         if ((sampleTable.getIntCol1() % 10 == 1) || (sampleTable.getIntCol1() < 10)) {
-            LOG.info("end exec id={}", sampleTable.getIntCol1());
+            LOG.info("end exec int_col1={}", sampleTable.getIntCol1());
         }
         return null;
     }
 
     private void execute(PsCacheSession session, TsurugiTransaction transactio)
             throws IOException, InterruptedException, TsurugiTransactionException {
-        // TODO: ここに処理を記述
+        LOG.info("start int_col1={}", this.sampleTable.getIntCol1());
+
         var dao = new SampleTableDao(session);
         var target = this.sampleTable.clone();
         target.setIntCol1(target.getIntCol1() + 1000);
         dao.insertSampleTable(transactio, target);
-        LOG.info("MyTask execute int_col1={}", this.sampleTable.getIntCol1());
     }
 
 }

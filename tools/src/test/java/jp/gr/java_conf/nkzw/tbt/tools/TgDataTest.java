@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 public class TgDataTest {
     @Test
-    void testSsample() throws IOException {
+    void testSample() throws IOException {
         // Test the main method of TgData
         String[] args = {
                 "--excel",

@@ -6,17 +6,26 @@ import org.junit.jupiter.api.Test;
 
 public class TgColumnTest {
     @Test
-    void testGetGetterDef() {
-        TgColumn tgColumn = new TgColumn("int_col1", "INT");
-        String expected = "public int getIntCol1() {\n" +
+    void testBasicDef() {
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "INT", "Yes", "1", "コメント");
+        // java getter
+        String exp1 = "public int getIntCol1() {\n" +
                 "\treturn this.intCol1;\n" +
                 "}\n";
-        assertEquals(expected, tgColumn.getGetterDef());
+        assertEquals(exp1, tgColumn.getGetterDef());
+        // java setter
+        var exp2 = "public void setIntCol1(int intCol1) {\n" +
+                "\tthis.intCol1 = intCol1;\n" +
+                "}\n";
+        assertEquals(exp2, tgColumn.getSetterDef());
+        // ddl
+        var exp3 = "/** カラム1:コメント */\nint_col1 INT NOT NULL DEFAULT 1";
+        assertEquals(exp3, tgColumn.getDdlDef());
     }
 
     @Test
     void testNumericColumn() {
-        TgColumn tgColumn = new TgColumn("intCol1", "INT");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "INT", "Yes", "1", "コメント");
         assertEquals("int", tgColumn.getJavaType());
         assertEquals(9, tgColumn.getColumnPrecision());
         assertEquals(0, tgColumn.getColumnScale());
@@ -45,7 +54,7 @@ public class TgColumnTest {
 
     @Test
     void testStringColumn() {
-        TgColumn tgColumn = new TgColumn("col", "CHAR");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "CHAR", "Yes", "1", "コメント");
         assertEquals("String", tgColumn.getJavaType());
         tgColumn.setColumnType("CHAR(10)");
         assertEquals("String", tgColumn.getJavaType());
@@ -59,7 +68,7 @@ public class TgColumnTest {
 
     @Test
     void testDateTimeColumn() {
-        TgColumn tgColumn = new TgColumn("col1", "DATE");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "DATE", "Yes", "1", "コメント");
         assertEquals("LocalDate", tgColumn.getJavaType());
         tgColumn.setColumnType("TIME");
         assertEquals("LocalTime", tgColumn.getJavaType());
@@ -71,7 +80,7 @@ public class TgColumnTest {
 
     @Test
     void testBinaryColumn() {
-        TgColumn tgColumn = new TgColumn("col1", "BINARY");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "BINARY", "Yes", "1", "コメント");
         assertEquals("byte[]", tgColumn.getJavaType());
         tgColumn.setColumnType("VARBINARY");
         assertEquals("byte[]", tgColumn.getJavaType());
@@ -81,14 +90,14 @@ public class TgColumnTest {
 
     @Test
     void testGetMemberDef() {
-        TgColumn tgColumn = new TgColumn("int_col1", "INT");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "INT", "Yes", "1", "コメント");
         String expected = "private int intCol1;\n";
         assertEquals(expected, tgColumn.getMemberDef());
     }
 
     @Test
     void testGetResultMapAddMethodType() {
-        TgColumn tgColumn = new TgColumn("int_col1", "INT");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "INT", "Yes", "1", "コメント");
         assertEquals("addInt", tgColumn.getResultMapAddMethodType());
         tgColumn.setColumnType("BIGINT");
         assertEquals("addLong", tgColumn.getResultMapAddMethodType());
@@ -128,7 +137,7 @@ public class TgColumnTest {
 
     @Test
     void testGetSetterDef() {
-        TgColumn tgColumn = new TgColumn("int_col1", "INT");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "INT", "Yes", "1", "コメント");
         String expected = "public void setIntCol1(int intCol1) {\n" +
                 "\tthis.intCol1 = intCol1;\n" +
                 "}\n";
@@ -137,14 +146,14 @@ public class TgColumnTest {
 
     @Test
     void testToString() {
-        TgColumn tgColumn = new TgColumn("int_col1", "INT");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "INT", "Yes", "1", "コメント");
         String expected = "TgColumn name=int_col1, \ttype=INT, \tprecision=9, \tscale=0, \tjavaType=int, \tisPrimaryKey=false\n";
         assertEquals(expected, tgColumn.toString());
     }
 
     @Test
     void testGetStoreValue() {
-        TgColumn tgColumn = new TgColumn("int_col1", "INT");
+        TgColumn tgColumn = new TgColumn("カラム1","int_col1", "INT", "Yes", "1", "コメント");
         assertEquals(234567890, tgColumn.getStoreValue(1234567890));
 
         tgColumn.setColumnType("BIGINT");

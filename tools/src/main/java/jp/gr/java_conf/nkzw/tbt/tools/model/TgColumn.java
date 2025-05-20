@@ -91,14 +91,21 @@ public class TgColumn {
     private String javaType;
     private boolean isPrimaryKey = false;
     private boolean isNullable = true;
-
-    public TgColumn(String columnName, String columnType) {
+    private String comment;
+    private String defaultValue;
+    private String columnExplain;
+    
+    public TgColumn(String columnExplain,String columnName, String columnType, String nullCell, String defaultCell, String commentCell) {
         this.columnName = columnName;
         this.columnType = columnType;
         var ret = convJavaType(columnType);
         this.javaType = ret[0].toString();
         this.ColumnPrecision = (int) ret[1];
         this.columnScale = (int) ret[2];
+        this.isNullable = (nullCell != null) && !nullCell.isEmpty() ? false : true;
+        this.defaultValue = defaultCell;
+        this.comment = commentCell;
+        this.columnExplain = columnExplain;
     }
 
     public String getColumnName() {
@@ -271,8 +278,9 @@ public class TgColumn {
             case "DECIMAL" -> sb.append("addDecimal(\"").append(columnName).append("\",");
             case "CHAR", "CHARACTER", "VARCHAR", "CHAR VARYING", "CHARACTER VARYING" ->
                 sb.append("addString(\"").append(columnName).append("\",");
-            case "DATE","TIME","TIMESTAMP","TIMESTAMP WITH TIME ZONE" -> sb.append("add(\"").append(columnName).append("\",")
-            .append(getJavaType()).append(".class, ");
+            case "DATE", "TIME", "TIMESTAMP", "TIMESTAMP WITH TIME ZONE" ->
+                sb.append("add(\"").append(columnName).append("\",")
+                        .append(getJavaType()).append(".class, ");
             case "BINARY", "VARBINARY", "BINARY VARYING" ->
                 sb.append("addBytes(\"").append(columnName).append("\",");
             case "BOOLEAN" -> sb.append("addBoolean(\"").append(columnName).append("\",");
@@ -283,9 +291,34 @@ public class TgColumn {
             }
         }
         sb.append(TgStringUtil.toCamelCaseTopUpper(tableName))
-            .append("::").append("get").append(TgStringUtil.toCamelCaseTopUpper(columnName))
+                .append("::").append("get").append(TgStringUtil.toCamelCaseTopUpper(columnName))
                 .append(")");
 
+        return sb.toString();
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public String getDdlDef() {
+        StringBuilder sb = new StringBuilder();
+        // コメント
+        if (comment != null) {
+            sb.append("/** ").append(columnExplain).append(":").append(comment).append(" */\n");
+        }
+        // カラム タイプ
+        sb.append(columnName).append(" ").append(columnType);
+        // NULL制約
+        if (this.isNullable) {
+            sb.append(" NULL");
+        } else {
+            sb.append(" NOT NULL");
+        }
+        // デフォルト
+        if ((this.defaultValue != null) && !this.defaultValue.isEmpty()) {
+            sb.append(" DEFAULT ").append(this.defaultValue);
+        }
         return sb.toString();
     }
 }
