@@ -99,8 +99,7 @@ public class ReserveTicketsBatch {
         FutureUtil.execute(taskList, argument.getThreadSize());
 
         long eraps = System.currentTimeMillis() - start;
-        long executeTime = TimeUnit.MILLISECONDS.toMillis(eraps - start);
-        LOG.info("allocSeats {} ms", executeTime);
+        LOG.info("allocSeats {} ms", eraps);
 
         return eraps;
     }
@@ -199,7 +198,7 @@ public class ReserveTicketsBatch {
         LOG.info("getAllSeats start");
         try (var session = tsurugiManager.createSession()) {
             var dao = new TicketsDao(session);
-            return tsurugiManager.executeOcc("show", session, (s, transaction) -> {
+            return tsurugiManager.executeRtx("show", session, (s, transaction) -> {
                 return dao.selectAllSeats(transaction);
             });
         }

@@ -27,6 +27,8 @@ import javax.swing.border.TitledBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.beust.jcommander.JCommander;
+
 import jp.gr.java_conf.nkzw.tbt.tickets.batch.ReserveTicketsBatch;
 import jp.gr.java_conf.nkzw.tbt.tickets.batch.ReserveTicketsBatchArgument;
 import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.Seats;
@@ -62,80 +64,6 @@ import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity.Seats;
  * 座席パネルや保留中の申請情報を更新するメソッドも含みます。
  */
 public class App extends JFrame {
-    /**
-     * SeatPanel class
-     * This class represents the panel that displays the seats in the ticket
-     * reservation system.
-     * It extends JPanel and uses a GridLayout to arrange the seat labels in a
-     * grid.
-     * The class includes methods to set the layout of the seats, update the seat
-     * labels, and change the color of the labels based on their status.
-     * The seat labels are created as JLabel components and added to the panel.
-     * The class also includes a method to set the seats based on the provided
-     * list of Seats objects.
-     * The labels are colored based on whether the seat is reserved or available.
-     * The class uses a LineBorder to create a border around each seat label.
-     * The seat labels are stored in a list for easy access and manipulation.
-     * The class is used in the main App class to display the seat information
-     * in the GUI.
-     */
-    public class SeatPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-        java.util.List<JLabel> seatLabels;
-
-        public SeatPanel() {
-            setBackground(Color.darkGray);
-            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSeat().get(0),
-                    reserveTicketsBatch.argument.getRowSeat().get(1)));
-            setBorder(BorderFactory.createTitledBorder("Seat"));
-            this.seatLabels = new ArrayList<JLabel>();
-            var border = new LineBorder(Color.BLACK, 1);
-            for (int i = 0; i < reserveTicketsBatch.argument.getRowSeat().get(0); i++) {
-                for (int j = 0; j < reserveTicketsBatch.argument.getRowSeat().get(1); j++) {
-                    var label = new JLabel("0");
-                    seatLabels.add(label);
-                    label.setHorizontalAlignment(JLabel.CENTER);
-                    label.setBorder(border);
-                    label.setForeground(Color.WHITE);
-                    add(label);
-                }
-            }
-        }
-
-        public void setSeatsLayout() {
-            this.removeAll();
-            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSeat().get(0),
-                    reserveTicketsBatch.argument.getRowSeat().get(1)));
-            setBorder(BorderFactory.createTitledBorder("Seat"));
-            this.seatLabels = new ArrayList<JLabel>();
-            var border = new LineBorder(Color.BLACK, 1);
-            for (int i = 0; i < reserveTicketsBatch.argument.getRowSeat().get(0); i++) {
-                for (int j = 0; j < reserveTicketsBatch.argument.getRowSeat().get(1); j++) {
-                    var label = new JLabel("0");
-                    seatLabels.add(label);
-                    label.setHorizontalAlignment(JLabel.CENTER);
-                    label.setBorder(border);
-                    label.setForeground(Color.WHITE);
-                    add(label);
-                }
-            }
-        }
-
-        public void setSeats(java.util.List<Seats> seats) {
-            for (int i = 0; i < seats.size(); i++) {
-                if (seats.size() > seatLabels.size()) {
-                    break;
-                }
-                var val = seats.get(i).getAssignedApplicationId();
-                if (val == 0) {
-                    seatLabels.get(i).setForeground(Color.RED);
-                } else {
-                    seatLabels.get(i).setForeground(Color.GREEN);
-                }
-                seatLabels.get(i).setText(String.valueOf(val));
-            }
-        }
-    }
 
     private static final long serialVersionUID = 1L;
 
@@ -147,12 +75,19 @@ public class App extends JFrame {
 
     public static void main(String[] args) {
 
-        // default values
-        int rowCount = 20;
-        int seatCount = 20;
-        int threadSize = 2;
+        String[] defaultArgs = {
+                "-f", "show",
+                "--rowSeat", "10", "10",
+                "--threadSize", "4",
+        };
+        args = args.length == 0 ? defaultArgs : args;
+        // パラメータのパース
+        var argument = new ReserveTicketsBatchArgument();
+        var commander = JCommander.newBuilder()
+                .programName(ReserveTicketsBatch.class.getName())
+                .addObject(argument).build();
+        commander.parse(args);
 
-        var defaultArgument = getArgument(rowCount, seatCount, threadSize);
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -164,7 +99,8 @@ public class App extends JFrame {
             e.printStackTrace();
         }
 
-        App app = new App(defaultArgument);
+        LOG.info("endpoint: " + argument.getEndpoint());
+        App app = new App(argument);
         try {
             app.reselectSeats();
         } catch (IOException | InterruptedException e) {
@@ -174,16 +110,17 @@ public class App extends JFrame {
         app.setVisible(true);
     }
 
-    private static ReserveTicketsBatchArgument getArgument(int row, int seat, int threadSize) {
-        // 引数の設定
-        var argument = new ReserveTicketsBatchArgument();
-        argument.setFunction("show");
-        argument.setEndpoint("tcp://localhost:12345");
-        argument.setTimeout(300L);
-        argument.setThreadSize(threadSize);
-        argument.setRowSeat(Arrays.asList(row, seat));
-        return argument;
-    }
+    // private static ReserveTicketsBatchArgument getArgument(int row, int seat, int
+    // threadSize) {
+    // // 引数の設定
+    // var argument = new ReserveTicketsBatchArgument();
+    // argument.setFunction("show");
+    // argument.setEndpoint("tcp://localhost:12345");
+    // argument.setTimeout(300L);
+    // argument.setThreadSize(threadSize);
+    // argument.setRowSeat(Arrays.asList(row, seat));
+    // return argument;
+    // }
 
     private ReserveTicketsBatch reserveTicketsBatch;
     private JPanel controllerPanel;
@@ -205,14 +142,46 @@ public class App extends JFrame {
         setBounds(10, 10, 1200, 800);
         setTitle("Ticket Reservation System");
 
+        // タイトルパネル
+        var titlePanel = createTitlePanel();
+        getContentPane().add(titlePanel, BorderLayout.NORTH);       
+
+        // シートパネル
         this.seatPanel = new SeatPanel();
         getContentPane().add(this.seatPanel, BorderLayout.CENTER);
 
+        // コントロールパネル
         this.controllerPanel = createControllerPanel();
         getContentPane().add(this.controllerPanel, BorderLayout.WEST);
 
+        // ステータスパネル
         this.statusText = createStatusText();
         getContentPane().add(this.statusText, BorderLayout.SOUTH);
+    }
+
+    private JPanel createTitlePanel() {
+        JPanel titlePanel = new JPanel();
+        titlePanel.setPreferredSize(new Dimension(200, 60));
+        titlePanel.setLayout(new GridLayout(1, 2));
+        titlePanel.setBackground(Color.LIGHT_GRAY);
+        titlePanel.setBorder(BorderFactory.createTitledBorder("Title"));
+
+        JLabel titleLabel = new JLabel("Ticket Reservation System");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setHorizontalAlignment(JLabel.LEFT);
+        titleLabel.setForeground(Color.BLUE);
+        titlePanel.add(titleLabel);
+
+        JLabel endpointLabel = new JLabel("endpoint: " + reserveTicketsBatch.argument.getEndpoint());
+        endpointLabel.setPreferredSize(new Dimension(50, 50));
+        endpointLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        endpointLabel.setHorizontalAlignment(JLabel.RIGHT);
+        // endpointLabel.setBorder(BorderFactory.createTitledBorder("endpoint"));
+        endpointLabel.setForeground(Color.BLUE);
+        titlePanel.add(endpointLabel);
+
+
+        return titlePanel;
     }
 
     private void reselectSeats() throws IOException, InterruptedException {
@@ -391,6 +360,64 @@ public class App extends JFrame {
                 LOG.error("Error in worker thread", e);
                 statusText.setText("Error: " + e.getMessage());
                 errorDialog(e.getMessage());
+            }
+        }
+    }
+
+    public class SeatPanel extends JPanel {
+        private static final long serialVersionUID = 1L;
+        java.util.List<JLabel> seatLabels;
+
+        public SeatPanel() {
+            setBackground(Color.darkGray);
+            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSeat().get(0),
+                    reserveTicketsBatch.argument.getRowSeat().get(1)));
+            setBorder(BorderFactory.createTitledBorder("Seat"));
+            this.seatLabels = new ArrayList<JLabel>();
+            var border = new LineBorder(Color.BLACK, 1);
+            for (int i = 0; i < reserveTicketsBatch.argument.getRowSeat().get(0); i++) {
+                for (int j = 0; j < reserveTicketsBatch.argument.getRowSeat().get(1); j++) {
+                    var label = new JLabel("0");
+                    seatLabels.add(label);
+                    label.setHorizontalAlignment(JLabel.CENTER);
+                    label.setBorder(border);
+                    label.setForeground(Color.WHITE);
+                    add(label);
+                }
+            }
+        }
+
+        public void setSeatsLayout() {
+            this.removeAll();
+            setLayout(new GridLayout(reserveTicketsBatch.argument.getRowSeat().get(0),
+                    reserveTicketsBatch.argument.getRowSeat().get(1)));
+            setBorder(BorderFactory.createTitledBorder("Seat"));
+            this.seatLabels = new ArrayList<JLabel>();
+            var border = new LineBorder(Color.BLACK, 1);
+            for (int i = 0; i < reserveTicketsBatch.argument.getRowSeat().get(0); i++) {
+                for (int j = 0; j < reserveTicketsBatch.argument.getRowSeat().get(1); j++) {
+                    var label = new JLabel("0");
+                    seatLabels.add(label);
+                    label.setHorizontalAlignment(JLabel.CENTER);
+                    label.setBorder(border);
+                    label.setForeground(Color.WHITE);
+                    add(label);
+                }
+            }
+        }
+
+        public void setSeats(java.util.List<Seats> seats) {
+            for (int i = 0; i < seats.size(); i++) {
+                if (seats.size() > seatLabels.size()) {
+                    break;
+                }
+                var val = seats.get(i).getAssignedApplicationId();
+                if (val == 0) {
+                    seatLabels.get(i).setForeground(Color.RED);
+                } else {
+                    seatLabels.get(i).setForeground(Color.GREEN);
+                }
+                seatLabels.get(i).setText(String.valueOf(val));
             }
         }
     }

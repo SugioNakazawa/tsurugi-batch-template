@@ -87,6 +87,12 @@ public class TsurugiManager implements Closeable {
         execute(session, txOption, action);
     }
 
+    public void executeRtx(String label, PsCacheSession session, PsCacheAction action)
+            throws IOException, InterruptedException {
+        var txOption = TgTxOption.ofRTX().label(label);
+        execute(session, txOption, action);
+    }
+
     public void execute(PsCacheSession session, TgTxOption txOption, PsCacheAction action)
             throws IOException, InterruptedException {
         var setting = TgTmSetting.ofAlways(txOption);
@@ -103,6 +109,12 @@ public class TsurugiManager implements Closeable {
     public <R> R executeOcc(String label, PsCacheSession session, PsCacheTask<R> action)
             throws IOException, InterruptedException {
         var txOption = TgTxOption.ofOCC().label(label);
+        return execute(session, txOption, action);
+    }
+
+    public <R> R executeRtx(String label, PsCacheSession session, PsCacheTask<R> action)
+            throws IOException, InterruptedException {
+        var txOption = TgTxOption.ofRTX().label(label);
         return execute(session, txOption, action);
     }
 
