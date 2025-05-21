@@ -118,7 +118,8 @@ public class ReserveTicketsBatchTest {
         String[] args = {
                 "-f", "assign",
                 "--rowSeat", "10", "10",
-                "--threadSize", "2",
+                "--threadSize", "1",
+                "--applicationPerTask", "10",
         };
         ReserveTicketsBatch.main(args);
 
