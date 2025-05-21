@@ -53,7 +53,7 @@ public class TicketsDao extends TsurugiDao {
 
     // select * from setas;
     private final QueryCache<TgBindParameters, Seats> selectAllSeats = new QueryCache<>(session -> {
-        String sql = "SELECT * FROM seats";
+        String sql = "SELECT * FROM seats ORDER BY row_no, seat_no ASC";
         var parameterMapping = TgParameterMapping.of();
         var resultMapping = Seats.RESULT_MAPPING;
         return session.createQuery(sql, parameterMapping, resultMapping);
