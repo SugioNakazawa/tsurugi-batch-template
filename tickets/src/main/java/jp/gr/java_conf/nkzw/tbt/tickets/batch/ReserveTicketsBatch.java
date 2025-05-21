@@ -52,11 +52,12 @@ public class ReserveTicketsBatch {
 
     public void run() {
 
-        LOG.info("run start row={} seat={} threadSize={} aoolicationPerTask={}",
+        LOG.info("run start row={} seat={} threadSize={} aoolicationPerTask={} endpoint={}",
                 argument.getRowSeat().get(0),
                 argument.getRowSeat().get(1),
                 argument.getThreadSize(),
-                argument.getApplicationPerTask());
+                argument.getApplicationPerTask(),
+                argument.getEndpoint());
 
         long start = System.currentTimeMillis();
         try {
@@ -131,10 +132,10 @@ public class ReserveTicketsBatch {
                 // タスクの実行
                 taskList.add(task);
                 // patter 1
-                startRow = startRow + deltaRow;
-                startRow = startRow > maxRow ? 1 : startRow;
+                // startRow = startRow + deltaRow;
+                // startRow = startRow > maxRow ? 1 : startRow;
                 // patter 2
-                // startRow = (startRow + 1) > maxRow ? 1 : (startRow + 1);
+                startRow = (startRow + 1) > maxRow ? 1 : (startRow + 1);
                 task = new AllocTask(this.tsurugiManager, startRow, argument.getRowSeat().get(0));
             }
         }
