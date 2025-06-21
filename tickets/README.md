@@ -96,3 +96,71 @@ tsurugi@ubuntu:~$ tg-logsearch summary transaction | jq
   "abort_ratio": 0.16
 }
 ```
+tg-logsearch での確認
+```shell
+ubuntu@ip-172-30-2-74:~$ tg-logsearch summary transaction -S "2025-06-03T21:20:39" -E "2025-06-03T21:25:53" |jq
+{
+  "summery_type": "transaction",
+  "start_datetime": "2025-06-03T21:20:39.000000000+09",
+  "end_datetime": "2025-06-03T21:25:53.000000000+09",
+  "avg_duration_sec": 0.007553352,
+  "total_count": 40964,
+  "completed_count": 40964,
+  "active_count": 0,
+  "start_unknown_count": 0,
+  "commit_total_count": 40964,
+  "abort_total_count": 0,
+  "abort_ratio": 0
+}
+```
+
+## 処理時間
+
+
+```mermaid
+%%{
+    init:{
+        "xyChart":{
+            "width":640,
+            "height":400,
+            "titleFontSize":17,
+            "xAxis":{
+                "titleFontSize":17,
+                "labelFontSize":17,
+                "axisLineWidth":1,
+                "tickWidth":1,
+                "showLabel":true
+            },
+            "yAxis":{
+                "titleFontSize":17,
+                "labelFontSize":17,
+                "axisLineWidth":1,
+                "tickWidth":1,
+                "showLabel":true
+            }
+        },
+        "themeVariables":{
+            "fontFamily":"monospaced",
+            "xyChart":{
+                "plotColorPalette":"blue,green,yellow,pink,red"
+            }
+        }
+    }
+}%%
+xychart-beta
+title "OCC: r7a.4xlarge 16CPU 64GiB MEM"
+x-axis "実行スレッド数" 0 --> 64
+y-axis "実行時間( ms )" 0 --> 320000
+line [4155, 1426, 875, 533, 374, 371]
+line [ 16837,	5712,	3237,	1935,	1306,	1215]
+line [70131, 23572, 13083, 7484,	4952, 5023]
+line [307236,101140,56596,32457,25191,25241]
+```
+
+OCC: r7a.4xlarge 16CPU 64GiB MEM
+||1|4|8|16|32|64|
+|:--|--:|---:|---:|---:|---:|---:|
+|40*40|4155|1426| 875| 533| 374| 371|
+|80*80|16837| 5712| 3237| 1935| 1306| 1215|
+|160*160|70131| 23572| 13083| 7484| 4952| 5023|
+|320*320|307236|101140|56596|32457|25191|25241|

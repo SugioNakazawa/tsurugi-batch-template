@@ -100,6 +100,12 @@ public class TsurugiManager implements Closeable {
         tm.execute((TsurugiTransactionAction) tx -> action.execute(session, tx));
     }
 
+    public void execute(PsCacheSession session, TgTmSetting setting, PsCacheAction action)
+            throws IOException, InterruptedException {
+        var tm = session.createTransactionManager(setting);
+        tm.execute((TsurugiTransactionAction) tx -> action.execute(session, tx));
+    }
+
     @FunctionalInterface
     public interface PsCacheTask<R> {
         public R execute(PsCacheSession session, TsurugiTransaction transaction)

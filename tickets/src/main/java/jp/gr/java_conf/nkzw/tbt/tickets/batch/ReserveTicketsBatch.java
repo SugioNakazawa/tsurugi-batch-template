@@ -27,8 +27,8 @@ public class ReserveTicketsBatch {
     public static void main(String[] args) {
         String[] defaultArgs = {
                 "-f", "assign",
-                "--rowSeat", "10", "10",
-                "--threadSize", "4",
+                "--rowSeat", "80", "80",
+                "--threadSize", "8",
                 // "--applicationPerTask", "10",
         };
         args = args.length == 0 ? defaultArgs : args;

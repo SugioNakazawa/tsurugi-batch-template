@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.tsurugidb.iceaxe.transaction.TsurugiTransaction;
 import com.tsurugidb.iceaxe.transaction.exception.TsurugiTransactionException;
+import com.tsurugidb.iceaxe.transaction.manager.TgTmSetting;
 import com.tsurugidb.iceaxe.transaction.option.TgTxOption;
 
 import jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.TicketsDao;
@@ -38,9 +39,20 @@ public class AllocTask implements Callable<Void> {
     public Void call() throws Exception {
         var session = tsurugiManager.createSession();
         try {
+            // OCCを使用
             var txOption = TgTxOption.ofOCC().label(
                     AllocTask.class.getSimpleName());
             tsurugiManager.execute(session, txOption, this::execute);
+
+            // LTXを使用する場合は、対象のテーブルを指定する
+            // List<String> reservTables = List.of("applications", "seats");
+            // var txOption = TgTxOption.ofLTX(reservTables).label(
+            //         AllocTask.class.getSimpleName());
+            // tsurugiManager.execute(session, txOption, this::execute);
+
+            // OCCとLTXを組み合わせた設定（要修正）
+            // var setting = TgTmSetting.ofOccLtx(TgTxOption.ofOCC(), 3, TgTxOption.ofLTX(reservTables), 2);
+            // tsurugiManager.execute(session, setting, this::execute);
         } catch (Exception e) {
             LOG.error("error id={}", applications.get(0).getId(), e);
             throw e;

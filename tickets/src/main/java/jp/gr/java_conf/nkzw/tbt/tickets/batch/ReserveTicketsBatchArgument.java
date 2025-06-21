@@ -9,7 +9,7 @@ public class ReserveTicketsBatchArgument {
     @Parameter(names = { "--help", "-h" }, arity = 0, description = "print this message", help = true)
     private Boolean help;
 
-    @Parameter(names = { "--endpoint" }, //
+    @Parameter(names = { "--endpoint", "-c"}, //
             arity = 1, //
             description = "endpoint for tsurugidb", //
             required = false)
