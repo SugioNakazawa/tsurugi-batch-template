@@ -45,13 +45,17 @@ public class TgData {
     static private final Logger LOG = LoggerFactory.getLogger(TgData.class);
     static private final String SPA = FileSystems.getDefault().getSeparator();
 
-    static private TgDataArgument argument = new TgDataArgument();
-
+    private TgDataArgument argument = new TgDataArgument();
     private List<TgTable> tables = new ArrayList<TgTable>();
+
+    public TgData(TgDataArgument argument) {
+        this.argument = argument;
+    }
 
     public static void main(String[] args) throws IOException, EncryptedDocumentException, InterruptedException {
         LOG.info("TgData main method started");
 
+        var argument = new TgDataArgument();
         var commander = JCommander.newBuilder().programName(TgData.class.getName()).addObject(argument).build();
         commander.parse(args);
         if (argument.isHelp()) {
@@ -59,12 +63,12 @@ public class TgData {
             return;
         }
 
-        new TgData().run();
+        new TgData(argument).run();
 
         LOG.info("TgData main method finished");
     }
 
-    public void run() throws IOException, EncryptedDocumentException, InterruptedException {
+    public void run() {
         //// Excelファイルの読み込み
         loadExcel(argument.getExcelFileName());
 
@@ -93,12 +97,17 @@ public class TgData {
         }
     }
 
-    private void generateDatas() throws IOException, InterruptedException {
-        var connecter = TsurugiConnector.of(URI.create(argument.getEndPoint()));
-        try (var session = connecter.createSession()) {
-            for (var table : this.tables) {
-                generateData(session, table);
+    private void generateDatas() {
+        try {
+            var connecter = TsurugiConnector.of(URI.create(argument.getEndPoint()));
+            try (var session = connecter.createSession()) {
+                for (var table : this.tables) {
+                    generateData(session, table);
+                }
             }
+        } catch (IOException | InterruptedException e) {
+            LOG.error("Error generating data", e);
+            throw new RuntimeException("Failed to generate data", e);
         }
     }
 
@@ -121,7 +130,7 @@ public class TgData {
         }
     }
 
-    private void createTables() throws IOException, InterruptedException {
+    private void createTables() {
         var connecter = TsurugiConnector.of(URI.create(argument.getEndPoint()));
         try (var session = connecter.createSession()) {
             for (var table : this.tables) {
@@ -142,6 +151,9 @@ public class TgData {
                     LOG.info("create index {}", indexDef);
                 }
             }
+        } catch (IOException | InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -156,23 +168,28 @@ public class TgData {
         }
     }
 
-    private void writeDdlFiles() throws IOException {
-        for (var table : this.tables) {
-            var outputDdl = new StringBuilder();
-            // テーブル削除
-            outputDdl.append(table.getDropTableDef()).append("\n");
-            // テーブル作成
-            outputDdl.append(table.getDdlDef()).append("\n");
-            // インデックス作成
-            for (var indexDef : table.getIndexDefs()) {
-                outputDdl.append(indexDef).append("\n");
+    private void writeDdlFiles() {
+        try {
+            for (var table : this.tables) {
+                var outputDdl = new StringBuilder();
+                // テーブル削除
+                outputDdl.append(table.getDropTableDef()).append("\n");
+                // テーブル作成
+                outputDdl.append(table.getDdlDef()).append("\n");
+                // インデックス作成
+                for (var indexDef : table.getIndexDefs()) {
+                    outputDdl.append(indexDef).append("\n");
+                }
+                // ディレクトリ作成
+                Path targetPath = Paths.get(argument.getOutPath()).resolve("sql");
+                Files.createDirectories(targetPath);
+                var outputPath = targetPath.resolve("create_" + table.getTableName() + ".sql");
+                Files.writeString(outputPath, outputDdl.toString());
+                LOG.info("write ddl: {}", outputPath);
             }
-            // ディレクトリ作成
-            Path targetPath = Paths.get(argument.getOutPath()).resolve("sql");
-            Files.createDirectories(targetPath);
-            var outputPath = targetPath.resolve("create_" + table.getTableName() + ".sql");
-            Files.writeString(outputPath, outputDdl.toString());
-            LOG.info("write ddl: {}", outputPath);
+        } catch (IOException e) {
+            LOG.error("Error writing DDL files", e);
+            throw new RuntimeException("Failed to write DDL files", e);
         }
     }
 
@@ -181,17 +198,22 @@ public class TgData {
      * 
      * @throws IOException
      */
-    private void writeJavaEntities() throws IOException {
+    private void writeJavaEntities() {
         // ディレクトリ作成
-        Path targetPath = Paths.get(argument.getOutPath()
-                + SPA
-                + argument.getJavaPackageName().replace(".", SPA));
-        for (var table : this.tables) {
-            Files.createDirectories(targetPath);
-            var outputJava = table.generateJavaEntity(argument.getJavaPackageName());
-            var outputPath = targetPath.resolve(TgStringUtil.toCamelCaseTopUpper(table.getTableName()) + ".java");
-            Files.writeString(outputPath, outputJava);
-            LOG.info("write java entity: {}", outputPath.toAbsolutePath());
+        try {
+            Path targetPath = Paths.get(argument.getOutPath()
+                    + SPA
+                    + argument.getJavaPackageName().replace(".", SPA));
+            for (var table : this.tables) {
+                Files.createDirectories(targetPath);
+                var outputJava = table.generateJavaEntity(argument.getJavaPackageName());
+                var outputPath = targetPath.resolve(TgStringUtil.toCamelCaseTopUpper(table.getTableName()) + ".java");
+                Files.writeString(outputPath, outputJava);
+                LOG.info("write java entity: {}", outputPath.toAbsolutePath());
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -259,7 +281,8 @@ public class TgData {
                 // コメント
                 var commentCell = row.getCell(6).getStringCellValue().trim();
 
-                table.addCulmn(new TgColumn(columnExplainCell, culumnCell, typeCell, nullCell, defaultCell, commentCell));
+                table.addCulmn(
+                        new TgColumn(columnExplainCell, culumnCell, typeCell, nullCell, defaultCell, commentCell));
                 // LOG.debug("columnName: {}, type: {}", culumnCell.toString(),
                 // typeCell.toString());
             }

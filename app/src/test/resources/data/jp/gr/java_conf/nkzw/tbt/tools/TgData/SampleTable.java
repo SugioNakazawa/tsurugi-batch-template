@@ -1,4 +1,4 @@
-package data.jp.gr.java_conf.nkzw.tbt.tools.TgData;
+package jp.gr.java_conf.nkzw.tbt.tools.TgData;
 //  genetrated by TgData.
 import java.math.BigDecimal;
 import java.time.LocalDate;

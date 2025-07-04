@@ -6,6 +6,9 @@ import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import com.tsurugidb.iceaxe.sql.result.TgResultMapping;
+
+import jp.gr.java_conf.nkzw.tbt.tools.TgData.SampleTable;
+
 import com.tsurugidb.iceaxe.sql.parameter.TgParameterMapping;
 public class SampleTable implements Cloneable {
 private int intCol1;
