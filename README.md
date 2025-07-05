@@ -23,3 +23,24 @@ cd tsurugi-batch-template
 app, tickets, tools にそれぞれ tar ファイルと zip ファイルファ作成されます。
 
 各プロジェクトの詳細はそれぞれの README.md を参照してください。
+
+## 実行
+### tikets
+```shell
+cd work # 任意のディレクトリを作成して移動
+tar xf ~/github/tsurugi-batch-template/tickets/build/distributions/tickets-0.1.0.tar
+
+# GUI起動
+./tickets-0.1.0/bin/run_gui.sh 
+```
+
+実行シェル一覧
+
+- run_batch_prepare.sh: 座席を準備するバッチを実行
+  - --rowSeat 160 160
+- run_batch_assign.sh: 座席を割り当てるバッチを実行
+  - --rowSeat 160 160 --threadSize 16
+- run_batch_show.sh: 座席を表示するバッチを実行
+  - --rowSeat 160 160
+- run_batch.sh: ファンクションを指定してバッチを実行
+- run_gui.sh: GUIを起動
