@@ -62,7 +62,7 @@ public class TemplateBatch {
             postProcess();
             LOG.info("TemplateBatch main postProcess exucuted");
         } catch (Exception e) {
-            LOG.error("原価再計算バッチ実行時に例外が発生し異常終了しました。");
+            LOG.error("バッチ実行時に例外が発生し異常終了しました。");
             e.printStackTrace();
         } finally {
             long end = System.currentTimeMillis();

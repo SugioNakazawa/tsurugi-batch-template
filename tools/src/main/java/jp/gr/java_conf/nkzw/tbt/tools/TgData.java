@@ -73,7 +73,7 @@ public class TgData {
         loadExcel(argument.getExcelFileName());
 
         // JavaEntityの生成
-        if (argument.isJavaEntity()) {
+        if (argument.getJavaPackageName() != null) {
             writeJavaEntities();
         }
         // DDLの生成

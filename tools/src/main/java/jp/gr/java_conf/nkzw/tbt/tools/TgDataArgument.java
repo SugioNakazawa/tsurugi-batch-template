@@ -9,6 +9,7 @@ public class TgDataArgument {
             description = "excel file path for input", //
             required = false)
     private String excelFileName;
+
     @Parameter(names = { "--datacount" }, //
             arity = 1, //
             description = "number of generate data", //
@@ -55,14 +56,6 @@ public class TgDataArgument {
     private Boolean silent = false;
 
     /**
-     * Javaエンティティソースを出力する。
-     */
-    @Parameter(names = { "--javaentity" }, //
-            description = "output java entity", //
-            required = false)
-    private Boolean javaEntity = false;
-
-    /**
      * SQL DDLを出力する。
      */
     @Parameter(names = { "--ddl" }, //
@@ -80,6 +73,7 @@ public class TgDataArgument {
             arity = 0, //
             description = "create table drop if exist")
     private Boolean createtable = false;
+
     @Parameter(names = { "--generatedata" }, //
             arity = 0, //
             description = "generate data to Tsurugi")
@@ -115,10 +109,6 @@ public class TgDataArgument {
 
     public Boolean isSilent() {
         return (this.silent != null) && this.silent;
-    }
-
-    public Boolean isJavaEntity() {
-        return (this.javaEntity != null) && this.javaEntity;
     }
 
     public Boolean isDdl() {

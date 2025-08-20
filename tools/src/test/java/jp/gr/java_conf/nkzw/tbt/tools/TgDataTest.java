@@ -18,7 +18,6 @@ public class TgDataTest {
                 "--excel",
                 "src/test/resources/jp/gr/java_conf/nkzw/tbt/tools/TgData/table_design.xlsx",
                 "--sheet", "サンプル", // シート:部門 のみを対象
-                "--javaentity", // Javaエンティティソースを出力
                 "--javapackage", "jp.gr.java_conf.nkzw.tbt.tools.TgData", // Javaソースのパッケージ名を指定
                 "--out", "out",
                 "--ddl", // DDLを出力
@@ -58,7 +57,6 @@ public class TgDataTest {
                 "--excel",
                 "src/test/resources/jp/gr/java_conf/nkzw/tbt/tools/TgData/tickets_design.xlsx",
                 // "--sheet", "サンプル", // シート:部門 のみを対象
-                "--javaentity", // Javaエンティティソースを出力
                 "--javapackage", "jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity", // Javaソースのパッケージ名を指定
                 "--out", "out",
                 "--ddl", // DDLを出力
