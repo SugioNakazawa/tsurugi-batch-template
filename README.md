@@ -1,5 +1,5 @@
 # Tsurugi Batch Template
-Tsurugiでバッチプログラムをさく作成する際の支援ツールです。
+Tsurugiを利用するバッチプログラム作成支援ツールです。
 
 ## プロジェクトの説明
 
@@ -11,7 +11,7 @@ Tsurugiでバッチプログラムをさく作成する際の支援ツールで�
 - tools: プログラムで利用する entity のソースコード、テーブルの DDL 作成支援ツール
   - エクセルで作成したテーブル定義から、DDLおよびJavaのエンティティモデルモデルに加え、TgParameterMapping、TgResultMapping、toValuesName() のコードを出力します。
 
-テンプレート(app)実行にはtoolsプロジェクトが必要です。依存関係を定義するか同じプロジェクトにコピーそて利用してください。
+`テンプレート(app)、チケット(tickets)は tools に依存しています。流用する際には依存関係を定義するか同一プロジェクトにコピーして利用してください。`
 
 ## ビルド
 
@@ -25,7 +25,7 @@ app, tickets, tools にそれぞれ tar ファイルと zip ファイルファ�
 各プロジェクトの詳細はそれぞれの README.md を参照してください。
 
 ## 実行
-### tikets
+### tickets
 ```shell
 cd work # 任意のディレクトリを作成して移動
 tar xf ~/github/tsurugi-batch-template/tickets/build/distributions/tickets-0.1.0.tar

@@ -27,7 +27,7 @@ public class TemplateBatch {
     private TsurugiManager tsurugiManager;
     private TemplateBatchArgument argument;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Throwable {
         LOG.info("TemplateBatch started");
         // パラメータのパース
         var argument = new TemplateBatchArgument();
@@ -46,7 +46,7 @@ public class TemplateBatch {
         this.argument = argument;
     }
 
-    private void main() {
+    private void main() throws Throwable {
 
         LOG.info("TemplateBatch main start");
         long start = System.currentTimeMillis();
@@ -64,6 +64,7 @@ public class TemplateBatch {
         } catch (Exception e) {
             LOG.error("バッチ実行時に例外が発生し異常終了しました。");
             e.printStackTrace();
+            throw e;
         } finally {
             long end = System.currentTimeMillis();
             long executeTime = TimeUnit.MILLISECONDS.toMillis(end - start);
