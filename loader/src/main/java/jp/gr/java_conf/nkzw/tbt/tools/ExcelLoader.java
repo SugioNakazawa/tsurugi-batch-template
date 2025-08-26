@@ -274,8 +274,8 @@ public class ExcelLoader {
      * Tsurugiへのバインドインサート。
      *
      * @param sheet
-     * @throws Exception 
-     * @throws Throwable 
+     * @throws Exception
+     * @throws Throwable
      */
     public void insertAllBindSql(TgSheet sheet) {
         var sql_top = "INSERT INTO " //
@@ -287,11 +287,14 @@ public class ExcelLoader {
         var variables = sheet.getBindVariables();
         var parameterMapping = TgParameterMapping.of(variables);
 
-        var sessionOption = TgSessionOption.of()
-                .addLargeObjectPathMappingOnSend(Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/client"), "/mnt/client")
-                .addLargeObjectPathMappingOnReceive("/opt/tsurugi/var/data/log", Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/log"));
-        try (var session = connector.createSession(sessionOption); //
-        // try (var session = connector.createSession(); //
+        // TODO うまく動作しないのでコメントアウト
+        // var sessionOption = TgSessionOption.of()
+        //         .addLargeObjectPathMappingOnSend(Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/client"),
+        //                 "/mnt/client")
+        //         .addLargeObjectPathMappingOnReceive("/opt/tsurugi/var/data/log",
+        //                 Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/log"));
+        // try (var session = connector.createSession(sessionOption); //
+        try (var session = connector.createSession(); //
                 var ps = session.createStatement(sql, parameterMapping)) {
             var setting = TgTmSetting.ofAlways(TgTxOption.ofOCC());
             var tm = session.createTransactionManager(setting);
@@ -383,6 +386,9 @@ public class ExcelLoader {
                         break;
                     case OCTET:
                         cell.setCellValue("A");
+                        break;
+                    case BLOB:
+                        cell.setCellValue("BLOB");
                         break;
                     default:
                         String message = "not support table: " + sheet.getSheetName() + "colName: " + col.getName()

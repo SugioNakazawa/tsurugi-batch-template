@@ -167,8 +167,17 @@ public class TgSheet {
                     break;
                 case BLOB:
                     try {
-                        ret.addBlob(col.getName(), getBlobBytes(cellValue));
-                        // ret.addBlob(col.getName(), getBlob(cellValue));
+                        switch (1) {
+                            case 1:
+                                // bytes配列設定
+                                ret.addBlob(col.getName(), getBlobBytes(cellValue));
+                                break;
+                            case 2:
+                                // path設定
+                                ret.addBlob(col.getName(), getBlob(cellValue));
+                            default:
+                                break;
+                        }
                     } catch (IOException | InterruptedException e) {
                         String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
                                 + " type: " + col.getAtomType();

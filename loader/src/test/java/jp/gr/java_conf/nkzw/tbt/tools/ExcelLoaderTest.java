@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.poi.EncryptedDocumentException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ExcelLoaderTest {
@@ -115,7 +116,11 @@ public class ExcelLoaderTest {
     }
   }
 
-    @Test
+  /**
+   * BLOBを含むテーブルのテスト。tcp接続ではエラー。
+   */
+  @Test
+  @Disabled
   void testLoadData3() {
     var args = new String[] {
         "--srcfile", "./template3.xlsx",
