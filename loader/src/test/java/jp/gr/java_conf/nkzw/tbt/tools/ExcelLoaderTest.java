@@ -115,6 +115,24 @@ public class ExcelLoaderTest {
     }
   }
 
+    @Test
+  void testLoadData3() {
+    var args = new String[] {
+        "--srcfile", "./template3.xlsx",
+        "--table", "sample_table3"
+    };
+    try {
+      ExcelLoader.main(args);
+
+      var excelLoader = new ExcelLoader(ENDPOINT);
+      assertEquals(1, excelLoader.recordCount("sample_table3"));
+
+    } catch (EncryptedDocumentException | IOException | InterruptedException e) {
+      e.printStackTrace();
+      fail();
+    }
+  }
+
   @Test
   void testMainHelp() {
     String exp = """

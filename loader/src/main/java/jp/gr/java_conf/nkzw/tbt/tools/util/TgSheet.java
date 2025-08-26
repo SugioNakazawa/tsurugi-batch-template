@@ -98,6 +98,9 @@ public class TgSheet {
                 case TIME_POINT_WITH_TIME_ZONE:
                     ret.addOffsetDateTime(col.getName());
                     break;
+                case BLOB:
+                    ret.addBlob(col.getName());
+                    break;
                 default:
                     String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
                             + " type: " + col.getAtomType();
@@ -162,17 +165,17 @@ public class TgSheet {
                 case OCTET:
                     ret.addBytes(col.getName(), cellValue.getBytes());
                     break;
-                // case OCTET:
-                //     try {
-                //         // ret.addBlob(col.getName(), getBlob(cellValue));
-                //         ret.addBlob(col.getName(), x'01'));
-                //     } catch (IOException | InterruptedException e) {
-                //         String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
-                //                 + " type: " + col.getAtomType();
-                //         LOG.error(message);
-                //         throw new NotImplementedException(message);
-                //     }
-                //     break;
+                case BLOB:
+                    try {
+                        ret.addBlob(col.getName(), getBlobBytes(cellValue));
+                        // ret.addBlob(col.getName(), getBlob(cellValue));
+                    } catch (IOException | InterruptedException e) {
+                        String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
+                                + " type: " + col.getAtomType();
+                        LOG.error(message);
+                        throw new NotImplementedException(message);
+                    }
+                    break;
                 default:
                     String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
                             + " type: " + col.getAtomType();
@@ -181,6 +184,12 @@ public class TgSheet {
             }
         }
         return ret;
+    }
+
+    private TgBlob getBlobBytes(String value) throws IOException, InterruptedException {
+        var objectFactory = IceaxeObjectFactory.getDefaultInstance();
+        return objectFactory.createBlob(value.getBytes(), false);
+
     }
 
     private TgBlob getBlob(String cellValue) throws IOException, InterruptedException {
