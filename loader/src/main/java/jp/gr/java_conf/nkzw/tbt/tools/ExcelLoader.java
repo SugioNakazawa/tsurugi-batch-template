@@ -302,7 +302,7 @@ public class ExcelLoader {
                 // レコード数分繰り返し
                 for (int j = 1; j < sheet.getExSheet().getLastRowNum() + 1; j++) {
                     var parameter = sheet.getBindParameters(j);
-                    Thread.sleep(1000);
+                    // Thread.sleep(1000);
                     // SQL実行
                     transaction.executeAndGetCount(ps, parameter);
                 }
