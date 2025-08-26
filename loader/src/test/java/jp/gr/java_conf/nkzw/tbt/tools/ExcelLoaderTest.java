@@ -81,12 +81,38 @@ public class ExcelLoaderTest {
 
   @Test
   void testLoadData() {
+    var args = new String[] {
+        "--srcfile", "./template1.xlsx",
+        "--table", "sample_table1"
+    };
+    try {
+      ExcelLoader.main(args);
 
+      var excelLoader = new ExcelLoader(ENDPOINT);
+      assertEquals(1, excelLoader.recordCount("sample_table1"));
+
+    } catch (EncryptedDocumentException | IOException | InterruptedException e) {
+      e.printStackTrace();
+      fail();
+    }
   }
 
   @Test
   void testLoadData2() {
+    var args = new String[] {
+        "--srcfile", "./template2.xlsx",
+        "--table", "sample_table2"
+    };
+    try {
+      ExcelLoader.main(args);
 
+      var excelLoader = new ExcelLoader(ENDPOINT);
+      assertEquals(1, excelLoader.recordCount("sample_table2"));
+
+    } catch (EncryptedDocumentException | IOException | InterruptedException e) {
+      e.printStackTrace();
+      fail();
+    }
   }
 
   @Test
@@ -209,7 +235,7 @@ public class ExcelLoaderTest {
 
     var excelLoader = new ExcelLoader(ENDPOINT);
 
-    assertEquals(1, excelLoader.recorfCount("sample_table1"));
+    assertEquals(1, excelLoader.recordCount("sample_table1"));
   }
 
   @Test

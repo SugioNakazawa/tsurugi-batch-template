@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import com.tsurugidb.iceaxe.TsurugiConnector;
 import com.tsurugidb.iceaxe.metadata.TgTableMetadata;
+import com.tsurugidb.iceaxe.session.TgSessionOption;
 import com.tsurugidb.iceaxe.sql.parameter.TgParameterMapping;
 import com.tsurugidb.iceaxe.sql.result.TgResultMapping;
 import com.tsurugidb.iceaxe.sql.result.TsurugiResultEntity;
@@ -256,7 +257,7 @@ public class ExcelLoader {
         }
     }
 
-    public int recorfCount(String tableName) throws IOException, InterruptedException {
+    public int recordCount(String tableName) throws IOException, InterruptedException {
         var sql = "select count(*) as count_num from " + tableName;
         List<TsurugiResultEntity> list = executeSql(sql);
         return list.get(0).getInt("count_num");
@@ -273,6 +274,8 @@ public class ExcelLoader {
      * Tsurugiへのバインドインサート。
      *
      * @param sheet
+     * @throws Exception 
+     * @throws Throwable 
      */
     public void insertAllBindSql(TgSheet sheet) {
         var sql_top = "INSERT INTO " //
@@ -283,7 +286,12 @@ public class ExcelLoader {
         var sql = sql_top + sheet.getBindSql();
         var variables = sheet.getBindVariables();
         var parameterMapping = TgParameterMapping.of(variables);
-        try (var session = connector.createSession(); //
+
+        var sessionOption = TgSessionOption.of()
+                .addLargeObjectPathMappingOnSend(Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/client"), "/mnt/client")
+                .addLargeObjectPathMappingOnReceive("/opt/tsurugi/var/data/log", Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/log"));
+        try (var session = connector.createSession(sessionOption); //
+        // try (var session = connector.createSession(); //
                 var ps = session.createStatement(sql, parameterMapping)) {
             var setting = TgTmSetting.ofAlways(TgTxOption.ofOCC());
             var tm = session.createTransactionManager(setting);
@@ -291,6 +299,7 @@ public class ExcelLoader {
                 // レコード数分繰り返し
                 for (int j = 1; j < sheet.getExSheet().getLastRowNum() + 1; j++) {
                     var parameter = sheet.getBindParameters(j);
+                    Thread.sleep(1000);
                     // SQL実行
                     transaction.executeAndGetCount(ps, parameter);
                 }
@@ -299,6 +308,7 @@ public class ExcelLoader {
             LOG.debug("inserted {} rec into {}", sheet.getExSheet().getLastRowNum(), sheet.getExSheet().getSheetName());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

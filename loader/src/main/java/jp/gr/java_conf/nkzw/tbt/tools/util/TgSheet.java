@@ -1,6 +1,8 @@
 package jp.gr.java_conf.nkzw.tbt.tools.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -20,6 +22,8 @@ import com.tsurugidb.iceaxe.TsurugiConnector;
 import com.tsurugidb.iceaxe.metadata.TgTableMetadata;
 import com.tsurugidb.iceaxe.sql.parameter.TgBindParameters;
 import com.tsurugidb.iceaxe.sql.parameter.TgBindVariables;
+import com.tsurugidb.iceaxe.sql.type.IceaxeObjectFactory;
+import com.tsurugidb.iceaxe.sql.type.TgBlob;
 
 import jp.gr.java_conf.nkzw.tbt.tools.ExcelLoader;
 
@@ -133,8 +137,7 @@ public class TgSheet {
                     ret.addDouble(col.getName(), cellValue == null ? null : Double.parseDouble(cellValue));
                     break;
                 case DECIMAL:
-                    ret.addDecimal(col.getName(), cellValue == null ? null : new BigDecimal(cellValue), 6); // TODO
-                                                                                                            // 暫定で6桁
+                    ret.addDecimal(col.getName(), cellValue == null ? null : new BigDecimal(cellValue), 6);
                     break;
                 case CHARACTER:
                     ret.addString(col.getName(), cellValue);
@@ -151,22 +154,25 @@ public class TgSheet {
                     ret.addDateTime(col.getName(),
                             cellValue == null ? null : LocalDateTime.parse(cellValue, ExcelLoader.FORMAT_DATETIME));
                     break;
-                case OCTET:
-                    try {
-                        ret.addBlob(col.getName(),
-                                cellValue == null ? null : cellValue.getBytes(StandardCharsets.UTF_8));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        String message = "not support value: " + exSheet.getSheetName() + "colName: " + col.getName()
-                                + " type: " + col.getAtomType();
-                        LOG.error(message);
-                        throw new NotImplementedException(message);
-                    }
-                    break;
                 case TIME_POINT_WITH_TIME_ZONE:
                     ret.addOffsetDateTime(col.getName(),
-                            cellValue == null ? null : OffsetDateTime.parse(cellValue, ExcelLoader.FORMAT_OFFSET_DATETIME));
+                            cellValue == null ? null
+                                    : OffsetDateTime.parse(cellValue, ExcelLoader.FORMAT_OFFSET_DATETIME));
                     break;
+                case OCTET:
+                    ret.addBytes(col.getName(), cellValue.getBytes());
+                    break;
+                // case OCTET:
+                //     try {
+                //         // ret.addBlob(col.getName(), getBlob(cellValue));
+                //         ret.addBlob(col.getName(), x'01'));
+                //     } catch (IOException | InterruptedException e) {
+                //         String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
+                //                 + " type: " + col.getAtomType();
+                //         LOG.error(message);
+                //         throw new NotImplementedException(message);
+                //     }
+                //     break;
                 default:
                     String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
                             + " type: " + col.getAtomType();
@@ -175,6 +181,16 @@ public class TgSheet {
             }
         }
         return ret;
+    }
+
+    private TgBlob getBlob(String cellValue) throws IOException, InterruptedException {
+        var objectFactory = IceaxeObjectFactory.getDefaultInstance();
+        var is = getInputStream(cellValue.getBytes(StandardCharsets.UTF_8));
+        return objectFactory.createBlob(is, false);
+    }
+
+    private InputStream getInputStream(byte[] data) throws IOException {
+        return new ByteArrayInputStream(data);
     }
 
     public Sheet getExSheet() {
