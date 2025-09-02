@@ -41,3 +41,5 @@ out/
 .settings/
 .classpath
 .project
+docker/log/
+docker/send/

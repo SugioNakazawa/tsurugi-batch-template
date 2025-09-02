@@ -44,6 +44,13 @@ public class ExcelLoader {
             .ofPattern("yyyy/MM/dd HH:mm:ssZZZZZ");
     public static final LocalDateTime NOW_DATETIME = LocalDateTime.now();
     public static final OffsetDateTime NOW_OFFSET_DATETIME = OffsetDateTime.now();
+    // for BLOB with Docker
+    public static String LARGE_OBJECT_SEND_PATH_ON_HOST = Paths.get("").toAbsolutePath().getParent()
+            + "/docker/send";
+    public static final String LARGE_OBJECT_SEND_PATH_ON_CONTAINER = "/mnt/client";
+    public static final String LARGE_OBJECT_LOG_PATH_ON_CONTAINER = "/opt/tsurugi/var/data/log";
+    public static String LARGE_OBJECT_LOG_PATH_ON_HOST = Paths.get("").toAbsolutePath().getParent()
+            + "/docker/log";
 
     private final TsurugiConnector connector;
 
@@ -263,11 +270,27 @@ public class ExcelLoader {
         return list.get(0).getInt("count_num");
     }
 
+    /**
+     * 複数SQLを;で区切って実行するユーティリティメソッド。
+     * 
+     * @param sqls
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void execDdls(String sqls) throws IOException, InterruptedException {
+        for (var sql : sqls.split(";")) {
+            if (!sql.isBlank()) {
+                executeDdl(sql);
+            }
+        }
+    }
+
     void executeDdl(String ddlSql) throws IOException, InterruptedException {
-        var session = connector.createSession();
-        var setting = TgTmSetting.ofAlways(TgTxOption.ofOCC());
-        var tm = session.createTransactionManager(setting);
-        tm.executeDdl(ddlSql);
+        try (var session = connector.createSession()) {
+            var setting = TgTmSetting.ofAlways(TgTxOption.ofOCC());
+            var tm = session.createTransactionManager(setting);
+            tm.executeDdl(ddlSql);
+        }
     }
 
     /**
@@ -288,13 +311,15 @@ public class ExcelLoader {
         var parameterMapping = TgParameterMapping.of(variables);
 
         // TODO うまく動作しないのでコメントアウト
-        // var sessionOption = TgSessionOption.of()
-        //         .addLargeObjectPathMappingOnSend(Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/client"),
-        //                 "/mnt/client")
-        //         .addLargeObjectPathMappingOnReceive("/opt/tsurugi/var/data/log",
-        //                 Path.of("/Users/sugionakazawa/github/tsurugi_fdw_docker/log"));
-        // try (var session = connector.createSession(sessionOption); //
-        try (var session = connector.createSession(); //
+        var sessionOption = TgSessionOption.of()
+                .addLargeObjectPathMappingOnSend(
+                        Path.of(LARGE_OBJECT_SEND_PATH_ON_HOST),
+                        "/mnt/client")
+                .addLargeObjectPathMappingOnReceive(
+                        "/opt/tsurugi/var/data/log",
+                        Path.of(LARGE_OBJECT_LOG_PATH_ON_HOST));
+        try (var session = connector.createSession(sessionOption); //
+                // try (var session = connector.createSession(); //
                 var ps = session.createStatement(sql, parameterMapping)) {
             var setting = TgTmSetting.ofAlways(TgTxOption.ofOCC());
             var tm = session.createTransactionManager(setting);

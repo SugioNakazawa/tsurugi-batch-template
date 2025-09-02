@@ -14,13 +14,27 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.poi.EncryptedDocumentException;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ExcelLoaderTest {
   private static final String ENDPOINT = "tcp://localhost:12345";
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final PrintStream originalOut = System.out;
+
+  @BeforeAll
+  static void setUp() throws Exception {
+    var execDdl = new ExcelLoader(ENDPOINT);
+    try {
+      execDdl.execDdls(Files.readString(Paths.get("src/test/resources/sql/create_sample_table1.sql")));
+      execDdl.execDdls(Files.readString(Paths.get("src/test/resources/sql/create_sample_table2.sql")));
+      execDdl.execDdls(Files.readString(Paths.get("src/test/resources/sql/create_sample_table3.sql")));
+    } catch (IOException | InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      throw e;
+    }
+  }
 
   @Test
   void testCompare() throws EncryptedDocumentException, IOException {
@@ -33,51 +47,6 @@ public class ExcelLoaderTest {
     // done, assert
     assertTrue(
         excelLoader.compare(sql, expFilePath, true));
-  }
-
-  @Test
-  void testCreateTemplate() {
-
-  }
-
-  @Test
-  void testCreateTemplateExcel() {
-
-  }
-
-  @Test
-  void testDelete() {
-
-  }
-
-  @Test
-  void testDumpTableData() {
-
-  }
-
-  @Test
-  void testExecuteDdl() {
-
-  }
-
-  @Test
-  void testExecuteSql() {
-
-  }
-
-  @Test
-  void testGetConnector() {
-
-  }
-
-  @Test
-  void testGetRecordList() {
-
-  }
-
-  @Test
-  void testInsertAllBindSql() {
-
   }
 
   @Test
@@ -120,8 +89,12 @@ public class ExcelLoaderTest {
    * BLOBを含むテーブルのテスト。tcp接続ではエラー。
    */
   @Test
-  @Disabled
   void testLoadData3() {
+
+    System.setProperty(
+        "java.io.tmpdir",
+        Paths.get("").toAbsolutePath().getParent() + "/docker/send");
+
     var args = new String[] {
         "--srcfile", "./template3.xlsx",
         "--table", "sample_table3"

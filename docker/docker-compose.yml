@@ -1,0 +1,11 @@
+services:
+  tsurugi:
+    platform: linux/x86_64
+    container_name: tsurugi
+    image: ghcr.io/project-tsurugi/tsurugidb
+    ports:
+      - "12345:12345"
+
+    volumes:
+      - ./log:/opt/tsurugi/var/data/log
+      - ./send:/mnt/client

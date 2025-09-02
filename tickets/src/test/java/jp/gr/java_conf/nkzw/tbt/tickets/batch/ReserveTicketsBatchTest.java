@@ -3,6 +3,8 @@ package jp.gr.java_conf.nkzw.tbt.tickets.batch;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,9 +20,12 @@ import com.tsurugidb.iceaxe.transaction.manager.TgTmSetting;
 import com.tsurugidb.iceaxe.transaction.option.TgTxOption;
 import com.tsurugidb.iceaxe.util.IceaxeConvertUtil;
 
+import jp.gr.java_conf.nkzw.tbt.tools.ExcelLoader;
+
 public class ReserveTicketsBatchTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReserveTicketsBatchTest.class);
+    private static final String ENDPOINT = "tcp://localhost:12345";
 
     private static TsurugiConnector conn;
 
@@ -28,9 +33,17 @@ public class ReserveTicketsBatchTest {
     private ReserveTicketsBatchArgument argument;
 
     @BeforeAll
-    static void setUp() {
-        // TODO: TsurugiDBの接続情報をどこかに集約
+    static void setUp() throws Exception {
         conn = TsurugiConnector.of("tcp://localhost:12345");
+        var execDdl = new ExcelLoader(ENDPOINT);
+        try {
+            execDdl.execDdls(Files.readString(Paths.get("src/main/resources/sql/create_applications.sql")));
+            execDdl.execDdls(Files.readString(Paths.get("src/main/resources/sql/create_seats.sql")));
+        } catch (IOException | InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Test

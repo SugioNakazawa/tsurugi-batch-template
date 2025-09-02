@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS sample_table;
+
 CREATE TABLE sample_table (
 int_col1 INT,
 bigint_col2 BIGINT,
