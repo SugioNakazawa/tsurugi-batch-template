@@ -45,11 +45,10 @@ public class ExcelLoader {
     public static final LocalDateTime NOW_DATETIME = LocalDateTime.now();
     public static final OffsetDateTime NOW_OFFSET_DATETIME = OffsetDateTime.now();
     // for BLOB with Docker
-    public static String LARGE_OBJECT_SEND_PATH_ON_HOST = Paths.get("").toAbsolutePath().getParent()
-            + "/docker/send";
+    public static String LARGE_OBJECT_SEND_PATH_ON_HOST = Paths.get("").toAbsolutePath().getParent() + "/docker/send";
     public static final String LARGE_OBJECT_SEND_PATH_ON_CONTAINER = "/mnt/client";
     public static final String LARGE_OBJECT_LOG_PATH_ON_CONTAINER = "/opt/tsurugi/var/data/log";
-    public static String LARGE_OBJECT_LOG_PATH_ON_HOST = Paths.get("").toAbsolutePath().getParent()
+    public static String LARGE_OBJECT_LOG_PATH_ON_HOST = Paths.get("").toAbsolutePath().getParent().toString()
             + "/docker/log";
 
     private final TsurugiConnector connector;
@@ -310,16 +309,13 @@ public class ExcelLoader {
         var variables = sheet.getBindVariables();
         var parameterMapping = TgParameterMapping.of(variables);
 
-        // TODO うまく動作しないのでコメントアウト
         var sessionOption = TgSessionOption.of()
                 .addLargeObjectPathMappingOnSend(
-                        Path.of(LARGE_OBJECT_SEND_PATH_ON_HOST),
-                        "/mnt/client")
+                        Path.of(LARGE_OBJECT_SEND_PATH_ON_HOST), LARGE_OBJECT_SEND_PATH_ON_CONTAINER)
                 .addLargeObjectPathMappingOnReceive(
-                        "/opt/tsurugi/var/data/log",
-                        Path.of(LARGE_OBJECT_LOG_PATH_ON_HOST));
+                        LARGE_OBJECT_LOG_PATH_ON_CONTAINER, Path.of(LARGE_OBJECT_LOG_PATH_ON_HOST));
+
         try (var session = connector.createSession(sessionOption); //
-                // try (var session = connector.createSession(); //
                 var ps = session.createStatement(sql, parameterMapping)) {
             var setting = TgTmSetting.ofAlways(TgTxOption.ofOCC());
             var tm = session.createTransactionManager(setting);
@@ -327,7 +323,6 @@ public class ExcelLoader {
                 // レコード数分繰り返し
                 for (int j = 1; j < sheet.getExSheet().getLastRowNum() + 1; j++) {
                     var parameter = sheet.getBindParameters(j);
-                    // Thread.sleep(1000);
                     // SQL実行
                     transaction.executeAndGetCount(ps, parameter);
                 }

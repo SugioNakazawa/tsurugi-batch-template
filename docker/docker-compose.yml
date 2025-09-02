@@ -7,5 +7,5 @@ services:
       - "12345:12345"
 
     volumes:
-      - ./log:/opt/tsurugi/var/data/log
+      - /opt/tsurugi/var/data/log:/opt/tsurugi/var/data/log
       - ./send:/mnt/client

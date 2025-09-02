@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -30,7 +31,6 @@ public class ExcelLoaderTest {
       execDdl.execDdls(Files.readString(Paths.get("src/test/resources/sql/create_sample_table2.sql")));
       execDdl.execDdls(Files.readString(Paths.get("src/test/resources/sql/create_sample_table3.sql")));
     } catch (IOException | InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       throw e;
     }
@@ -90,7 +90,8 @@ public class ExcelLoaderTest {
    */
   @Test
   void testLoadData3() {
-
+    // TMPディレクトリを設定
+    System.out.println("(before) java.io.tmpdir: " + System.getProperty("java.io.tmpdir"));
     System.setProperty(
         "java.io.tmpdir",
         Paths.get("").toAbsolutePath().getParent() + "/docker/send");
@@ -103,12 +104,26 @@ public class ExcelLoaderTest {
       ExcelLoader.main(args);
 
       var excelLoader = new ExcelLoader(ENDPOINT);
+      // 件数チェック
       assertEquals(1, excelLoader.recordCount("sample_table3"));
+      // BLOB読み込みチェック
+      var sql = "SELECT blob_col19 FROM sample_table3";
+      var list = excelLoader.executeSql(sql);
+      assertEquals(1, list.size());
+      assertEquals(100033, list.get(0).getBytes("blob_col19").length);
 
+      // BLOB をファイルとして保存。手動確認用
+      var ref = list.get(0).getBlob("blob_col19").openInputStream();
+      try (var out = new FileOutputStream("out/blob_col19.jpg")) {
+        out.write(ref.readAllBytes());
+      }
     } catch (EncryptedDocumentException | IOException | InterruptedException e) {
       e.printStackTrace();
       fail();
-    }
+    // }finally {
+    //   // TMPディレクトリの設定を戻す
+    //   System.setProperty("java.io.tmpdir", "/tmp");
+    } 
   }
 
   @Test

@@ -1,10 +1,9 @@
 package jp.gr.java_conf.nkzw.tbt.tools.util;
 
-import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -167,15 +166,15 @@ public class TgSheet {
                     break;
                 case BLOB:
                     try {
-                        switch (1) {
+                        switch (2) {
                             case 1:
                                 // bytes配列設定
-                                ret.addBlob(col.getName(), cellValue.getBytes());
-                                // ret.addBlob(col.getName(), getBlobBytes(cellValue));
+                                // ret.addBlob(col.getName(), cellValue.getBytes());
+                                ret.addBlob(col.getName(), getBlobBytes(cellValue));
                                 break;
                             case 2:
                                 // path設定
-                                ret.addBlob(col.getName(), getBlob(cellValue));
+                                ret.addBlob(col.getName(), getBlobPath(cellValue));
                             default:
                                 break;
                         }
@@ -203,14 +202,16 @@ public class TgSheet {
 
     }
 
-    private TgBlob getBlob(String cellValue) throws IOException, InterruptedException {
+    private TgBlob getBlobPath(String cellValue) throws IOException, InterruptedException {
         var objectFactory = IceaxeObjectFactory.getDefaultInstance();
-        var is = getInputStream(cellValue.getBytes(StandardCharsets.UTF_8));
+        // ファイルパスからストリームを取得
+        var is = getInputStream(cellValue);
         return objectFactory.createBlob(is, false);
     }
 
-    private InputStream getInputStream(byte[] data) throws IOException {
-        return new ByteArrayInputStream(data);
+    private InputStream getInputStream(String path) throws IOException {
+        // ファイルパスからストリームを取得
+        return new FileInputStream(path);
     }
 
     public Sheet getExSheet() {
