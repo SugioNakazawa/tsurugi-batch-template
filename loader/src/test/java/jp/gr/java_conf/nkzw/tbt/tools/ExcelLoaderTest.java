@@ -85,6 +85,28 @@ public class ExcelLoaderTest {
     }
   }
 
+  @Test
+  void testLoadDataMrp() {
+    var args = new String[] {
+        "--srcfile", "./mrp.xlsx"
+    };
+    try {
+      ExcelLoader.main(args);
+
+      var excelLoader = new ExcelLoader(ENDPOINT);
+
+      assertEquals(6, excelLoader.recordCount("composition_ratio_master"));
+      assertEquals(3, excelLoader.recordCount("demand_forecast"));
+      assertEquals(2, excelLoader.recordCount("equipment_master"));
+      assertEquals(4, excelLoader.recordCount("equipment_product_master"));
+      assertEquals(3, excelLoader.recordCount("material_master"));
+      assertEquals(3, excelLoader.recordCount("product_master"));
+    } catch (EncryptedDocumentException | IOException | InterruptedException e) {
+      e.printStackTrace();
+      fail();
+    }
+  }
+
   /**
    * BLOBを含むテーブルのテスト。tcp接続ではエラー。
    */
@@ -120,10 +142,10 @@ public class ExcelLoaderTest {
     } catch (EncryptedDocumentException | IOException | InterruptedException e) {
       e.printStackTrace();
       fail();
-    // }finally {
-    //   // TMPディレクトリの設定を戻す
-    //   System.setProperty("java.io.tmpdir", "/tmp");
-    } 
+      // }finally {
+      // // TMPディレクトリの設定を戻す
+      // System.setProperty("java.io.tmpdir", "/tmp");
+    }
   }
 
   @Test

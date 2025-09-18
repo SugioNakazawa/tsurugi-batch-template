@@ -73,4 +73,27 @@ public class TgDataTest {
             fail();
         }
     }
+    @Test
+    void createMrp() {
+        // Ticketsの定義を生成
+        String[] args = {
+                "--excel",
+                "src/test/resources/jp/gr/java_conf/nkzw/tbt/tools/TgData/mrp_table.xlsx",
+                // "--sheet", "サンプル", // シート:部門 のみを対象
+                "--javapackage", "jp.gr.java_conf.nkzw.tbt.tickets.batch.dao.entity", // Javaソースのパッケージ名を指定
+                "--out", "out",
+                "--ddl", // DDLを出力
+                // "--silent", // 生成されたテーブル情報を出力しない
+                "--createtable", // DDL テーブル作成
+                "--generatedata", // DML テストデータ生成
+                "--datacount", "100", // テストデータ件数
+        };
+
+        try {
+            TgData.main(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
 }
