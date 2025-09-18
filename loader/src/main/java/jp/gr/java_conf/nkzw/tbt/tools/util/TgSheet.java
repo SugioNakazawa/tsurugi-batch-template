@@ -125,72 +125,79 @@ public class TgSheet {
             var cellValue = this.exSheet.getRow(i_data).getCell(i) != null
                     ? this.exSheet.getRow(i_data).getCell(i).toString()
                     : null;
-            switch (col.getAtomType()) {
-                case INT4:
-                    ret.addInt(col.getName(), cellValue == null ? null : new BigDecimal(cellValue).intValue());
-                    break;
-                case INT8:
-                    ret.addLong(col.getName(), cellValue == null ? null : new BigDecimal(cellValue).longValue());
-                    break;
-                case FLOAT4:
-                    ret.addFloat(col.getName(), cellValue == null ? null : Float.parseFloat(cellValue));
-                    break;
-                case FLOAT8:
-                    ret.addDouble(col.getName(), cellValue == null ? null : Double.parseDouble(cellValue));
-                    break;
-                case DECIMAL:
-                    ret.addDecimal(col.getName(), cellValue == null ? null : new BigDecimal(cellValue), 6);
-                    break;
-                case CHARACTER:
-                    ret.addString(col.getName(), cellValue);
-                    break;
-                case DATE:
-                    ret.addDate(col.getName(),
-                            cellValue == null ? null : LocalDate.parse(cellValue, ExcelLoader.FORMAT_DATE));
-                    break;
-                case TIME_OF_DAY:
-                    ret.addTime(col.getName(),
-                            cellValue == null ? null : LocalTime.parse(cellValue, ExcelLoader.FORMAT_TIME));
-                    break;
-                case TIME_POINT:
-                    ret.addDateTime(col.getName(),
-                            cellValue == null ? null : LocalDateTime.parse(cellValue, ExcelLoader.FORMAT_DATETIME));
-                    break;
-                case TIME_POINT_WITH_TIME_ZONE:
-                    ret.addOffsetDateTime(col.getName(),
-                            cellValue == null ? null
-                                    : OffsetDateTime.parse(cellValue, ExcelLoader.FORMAT_OFFSET_DATETIME));
-                    break;
-                case OCTET:
-                    ret.addBytes(col.getName(), cellValue.getBytes());
-                    break;
-                case BLOB:
-                    try {
-                        switch (2) {
-                            case 1:
-                                // bytes配列設定
-                                // ret.addBlob(col.getName(), cellValue.getBytes());
-                                ret.addBlob(col.getName(), getBlobBytes(cellValue));
-                                break;
-                            case 2:
-                                // path設定
-                                ret.addBlob(col.getName(), getBlobPath(cellValue));
-                            default:
-                                break;
+            try {
+                switch (col.getAtomType()) {
+                    case INT4:
+                        ret.addInt(col.getName(), cellValue == null ? null : new BigDecimal(cellValue).intValue());
+                        break;
+                    case INT8:
+                        ret.addLong(col.getName(), cellValue == null ? null : new BigDecimal(cellValue).longValue());
+                        break;
+                    case FLOAT4:
+                        ret.addFloat(col.getName(), cellValue == null ? null : Float.parseFloat(cellValue));
+                        break;
+                    case FLOAT8:
+                        ret.addDouble(col.getName(), cellValue == null ? null : Double.parseDouble(cellValue));
+                        break;
+                    case DECIMAL:
+                        ret.addDecimal(col.getName(), cellValue == null ? null : new BigDecimal(cellValue), 6);
+                        break;
+                    case CHARACTER:
+                        ret.addString(col.getName(), cellValue);
+                        break;
+                    case DATE:
+                        ret.addDate(col.getName(),
+                                cellValue == null ? null : LocalDate.parse(cellValue, ExcelLoader.FORMAT_DATE));
+                        break;
+                    case TIME_OF_DAY:
+                        ret.addTime(col.getName(),
+                                cellValue == null ? null : LocalTime.parse(cellValue, ExcelLoader.FORMAT_TIME));
+                        break;
+                    case TIME_POINT:
+                        ret.addDateTime(col.getName(),
+                                cellValue == null ? null : LocalDateTime.parse(cellValue, ExcelLoader.FORMAT_DATETIME));
+                        break;
+                    case TIME_POINT_WITH_TIME_ZONE:
+                        ret.addOffsetDateTime(col.getName(),
+                                cellValue == null ? null
+                                        : OffsetDateTime.parse(cellValue, ExcelLoader.FORMAT_OFFSET_DATETIME));
+                        break;
+                    case OCTET:
+                        ret.addBytes(col.getName(), cellValue.getBytes());
+                        break;
+                    case BLOB:
+                        try {
+                            switch (2) {
+                                case 1:
+                                    // bytes配列設定
+                                    // ret.addBlob(col.getName(), cellValue.getBytes());
+                                    ret.addBlob(col.getName(), getBlobBytes(cellValue));
+                                    break;
+                                case 2:
+                                    // path設定
+                                    ret.addBlob(col.getName(), getBlobPath(cellValue));
+                                default:
+                                    break;
+                            }
+                        } catch (IOException | InterruptedException e) {
+                            e.printStackTrace();
+                            String message = "not support table: " + exSheet.getSheetName() + " colName: "
+                                    + col.getName()
+                                    + " type: " + col.getAtomType();
+                            LOG.error(message);
+                            throw new NotImplementedException(message);
                         }
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                        String message = "not support table: " + exSheet.getSheetName() + " colName: " + col.getName()
+                        break;
+                    default:
+                        String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
                                 + " type: " + col.getAtomType();
                         LOG.error(message);
                         throw new NotImplementedException(message);
-                    }
-                    break;
-                default:
-                    String message = "not support table: " + exSheet.getSheetName() + "colName: " + col.getName()
-                            + " type: " + col.getAtomType();
-                    LOG.error(message);
-                    throw new NotImplementedException(message);
+                }
+            } catch (NumberFormatException e) {
+                LOG.error("NumberFormatException table: " + exSheet.getSheetName() + " colName: " + col.getName()
+                        + " type: " + col.getAtomType() + " value: " + cellValue + " row: " + (i_data + 1));
+                throw e;
             }
         }
         return ret;
