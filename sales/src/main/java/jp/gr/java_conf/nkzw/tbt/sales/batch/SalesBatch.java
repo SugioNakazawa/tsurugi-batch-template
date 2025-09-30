@@ -23,7 +23,7 @@ public class SalesBatch {
         this.argument = argument;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         LOG.info("SalesBatch started");
         long start = System.currentTimeMillis();
 
@@ -38,8 +38,8 @@ public class SalesBatch {
             return;
         }
         var salesBatch = new SalesBatch(argument);
-        try {
-            switch (argument.getMode()) {
+
+        switch (argument.getMode()) {
             case "insert":
                 salesBatch.execute_insert();
                 break;
@@ -50,10 +50,6 @@ public class SalesBatch {
             default:
                 LOG.error("unknown mode:{}", argument.getMode());
                 break;
-            }
-        } catch (IOException | InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
 
         LOG.info("SalesBatch finished. time:{}ms", (System.currentTimeMillis() - start));
@@ -66,7 +62,7 @@ public class SalesBatch {
             this.tsurugiManager = tsurugiManager;
             // prepare task
             var taskList = new ArrayList<UpdateDailySalesTask>(
-                    this.argument.getTaskNum()-1);
+                    this.argument.getTaskNum() - 1);
             int perTask = this.argument.getPerTask();
             for (int i = 0; i < this.argument.getTaskNum(); i++) {
                 taskList.add(new UpdateDailySalesTask(
@@ -75,10 +71,6 @@ public class SalesBatch {
                         ((i + 1) * perTask)));
             }
             FutureUtil.execute(taskList, this.argument.getThreadSize());
-        } catch (Exception e) {
-            LOG.error("バッチ実行時に例外が発生し異常終了しました。");
-            e.printStackTrace();
-            throw e;
         } finally {
         }
     }
@@ -99,10 +91,6 @@ public class SalesBatch {
                         i * perTask + 1, perTask));
             }
             FutureUtil.execute(taskList, this.argument.getThreadSize());
-        } catch (Exception e) {
-            LOG.error("バッチ実行時に例外が発生し異常終了しました。");
-            e.printStackTrace();
-            throw e;
         } finally {
         }
     }
