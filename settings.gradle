@@ -12,7 +12,7 @@ plugins {
 }
 
 rootProject.name = "tsurugi-batch-template"
-include("app", "tickets", "tools", "loader")
+include("app", "tickets", "tools", "loader","sales")
 
 // for jacoco
 // jacoco {

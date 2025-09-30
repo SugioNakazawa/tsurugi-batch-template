@@ -5,7 +5,8 @@ services:
     image: ghcr.io/project-tsurugi/tsurugidb
     ports:
       - "12345:12345"
-
+    environment:
+      - GLOG_v=30
     volumes:
       - /opt/tsurugi/var/data/log:/opt/tsurugi/var/data/log
       - ./send:/mnt/client
