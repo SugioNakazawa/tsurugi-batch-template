@@ -3,15 +3,18 @@ package jp.gr.java_conf.nkzw.tbt.sales.task;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tsurugidb.iceaxe.sql.result.TsurugiStatementResult;
 import com.tsurugidb.iceaxe.transaction.TsurugiTransaction;
 import com.tsurugidb.iceaxe.transaction.exception.TsurugiTransactionException;
 import com.tsurugidb.iceaxe.transaction.option.TgTxOption;
 
+import jp.gr.java_conf.nkzw.tbt.sales.batch.SalesBatch;
 import jp.gr.java_conf.nkzw.tbt.sales.dao.SalesDao;
 import jp.gr.java_conf.nkzw.tbt.sales.dao.entity.DailySales;
 import jp.gr.java_conf.nkzw.tbt.sales.dao.entity.SalesDetail;
@@ -58,19 +61,53 @@ public class InsertSalesDetailTask implements Callable<Void> {
 
     private void execute(PsCacheSession session, TsurugiTransaction transaction)
             throws IOException, InterruptedException, TsurugiTransactionException {
-        LOG.info("start start={}, number={}", this.start_num, this.number);
+        // LOG.info("start start={}, number={}", this.start_num, this.number);
 
         var salesDao = new SalesDao(session);
+        var result1List = new ArrayList<TsurugiStatementResult>(10000);
+        var result2List = new ArrayList<TsurugiStatementResult>(10000);
 
-        for (int i = 0; i < this.number; i++) {
-            var id = (long) this.start_num + i;
+        try {
+            for (int i = 0; i < this.number; i++) {
+                var id = (long) this.start_num + i;
 
-            var daily = createDailySales(id);
-            salesDao.insertDailySales(transaction, daily);
+                var daily = createDailySales(id);
+                var detail = createSalesDetail(this.start_num + i);
+                switch (SalesBatch.PLAN) {
+                    case 1:
+                        salesDao.insertDailySales(transaction, daily);
+                        salesDao.insertSalesDetail(transaction, detail);
+                        break;
+                    case 2:
+                        var result1 = salesDao.insertDailySales2(transaction, daily);
+                        result1List.add(result1);
+                        var result2 = salesDao.insertSalesDetail2(transaction, detail);
+                        result2List.add(result2);
+                        break;
 
-            var detail = createSalesDetail(this.start_num + i);
-            salesDao.insertSalesDetail(transaction, detail);
+                    default:
+                        break;
+                }
+            }
+        } finally {
+            if (SalesBatch.PLAN == 2) {
+                for (var r : result1List) {
+                    try {
+                        r.close();
+                    } catch (Exception e) {
+                        LOG.error("error closing result1", e);
+                    }
+                }
+                for (var r : result2List) {
+                    try {
+                        r.close();
+                    } catch (Exception e) {
+                        LOG.error("error closing result1", e);
+                    }
+                }
+            }
         }
+        // LOG.info("end start={}, number={}", this.start_num, this.number);
     }
 
     private SalesDetail createSalesDetail(long id) {

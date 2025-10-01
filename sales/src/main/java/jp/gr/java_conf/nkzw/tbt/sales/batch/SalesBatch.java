@@ -14,6 +14,8 @@ import jp.gr.java_conf.nkzw.tbt.tools.common.dao.TsurugiManager;
 import jp.gr.java_conf.nkzw.tbt.tools.common.util.FutureUtil;
 
 public class SalesBatch {
+
+    public static final int PLAN = 2; // 1:executeGetAndCount, 2:executeStatement
     private static final Logger LOG = LoggerFactory.getLogger(SalesBatch.class);
 
     private TsurugiManager tsurugiManager;
@@ -45,7 +47,6 @@ public class SalesBatch {
                 break;
             case "update":
                 salesBatch.execute_update();
-                LOG.info("not implemented");
                 break;
             default:
                 LOG.error("unknown mode:{}", argument.getMode());

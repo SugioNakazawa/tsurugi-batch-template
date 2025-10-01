@@ -10,6 +10,7 @@ import com.tsurugidb.iceaxe.sql.parameter.TgBindVariable.TgBindVariableBigDecima
 import com.tsurugidb.iceaxe.sql.parameter.TgBindVariable.TgBindVariableInteger;
 import com.tsurugidb.iceaxe.sql.parameter.TgBindVariable.TgBindVariableLong;
 import com.tsurugidb.iceaxe.sql.parameter.TgParameterMapping;
+import com.tsurugidb.iceaxe.sql.result.TsurugiStatementResult;
 import com.tsurugidb.iceaxe.transaction.TsurugiTransaction;
 import com.tsurugidb.iceaxe.transaction.exception.TsurugiTransactionException;
 
@@ -56,6 +57,11 @@ public class SalesDao extends TsurugiDao {
         var ps = insertSalesDetail.get();
         return transaction.executeAndGetCount(ps, entity);
     }
+    public TsurugiStatementResult insertSalesDetail2(TsurugiTransaction transaction, SalesDetail entity)
+            throws IOException, InterruptedException, TsurugiTransactionException {
+        var ps = insertSalesDetail.get();
+        return transaction.executeStatement(ps, entity);
+    }
 
     // insert daily_sales
     private final StatementCache<DailySales> insertDailySales = new StatementCache<>(session -> {
@@ -68,6 +74,12 @@ public class SalesDao extends TsurugiDao {
             throws IOException, InterruptedException, TsurugiTransactionException {
         var ps = insertDailySales.get();
         return transaction.executeAndGetCount(ps, entity);
+    }
+    // insert daily_sales 2
+    public TsurugiStatementResult insertDailySales2(TsurugiTransaction transaction, DailySales entity)
+            throws IOException, InterruptedException, TsurugiTransactionException {
+        var ps = insertDailySales.get();
+        return transaction.executeStatement(ps, entity);
     }
 
     // update daily_sales
@@ -91,6 +103,13 @@ public class SalesDao extends TsurugiDao {
         var ps = updateDailySales.get();
         var parameterMapping = TgBindParameters.of(ITEM_ID.bind(itemId), YEAR.bind(year), MONTH.bind(month), DAY.bind(day), QTY.bind(qty), AMOUNT.bind(amount));
         return transaction.executeAndGetCount(ps, parameterMapping);
+    }
+
+    public TsurugiStatementResult updateDailySales2(TsurugiTransaction transaction, Long itemId, int year, int month, int day, int qty, BigDecimal amount)
+            throws IOException, InterruptedException, TsurugiTransactionException {
+        var ps = updateDailySales.get();
+        var parameterMapping = TgBindParameters.of(ITEM_ID.bind(itemId), YEAR.bind(year), MONTH.bind(month), DAY.bind(day), QTY.bind(qty), AMOUNT.bind(amount));
+        return transaction.executeStatement(ps, parameterMapping);
     }
 
 }
