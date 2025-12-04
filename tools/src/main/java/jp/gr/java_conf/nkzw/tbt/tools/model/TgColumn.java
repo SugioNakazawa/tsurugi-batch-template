@@ -35,10 +35,10 @@ public class TgColumn {
 
         var type_pre = columnType.split("\\(")[0].toUpperCase();
         var javaType = switch (type_pre) {
-            case "INT" -> "int";
+            case "INT","INTEGER" -> "int";
             case "BIGINT" -> "long";
             case "REAL" -> "float";
-            case "DOUBLE" -> "double";
+            case "DOUBLE","DOUBLE PRECISION" -> "double";
             case "DECIMAL", "NUMBER" -> "BigDecimal";
             case "CHAR", "CHARACTER", "VARCHAR", "CHAR VARYING", "CHARACTER VARYING" -> "String";
             case "DATE" -> "LocalDate";
@@ -67,10 +67,10 @@ public class TgColumn {
     private static int adjustPrecision(String columnType) {
         var type_pre = columnType.split("\\(")[0];
         return switch (type_pre) {
-            case "INT" -> 9;
+            case "INT","INTEGER" -> 9;
             case "BIGINT" -> 19;
             case "REAL" -> 7;
-            case "DOUBLE" -> 15;
+            case "DOUBLE","DOUBLE PRECISION" -> 15;
             case "DECIMAL" -> 38;
             case "CHAR", "CHARACTER", "VARCHAR", "CHAR VARYING", "CHARACTER VARYING" -> 255;
             case "BINARY", "VARBINARY", "BINARY VARYING" -> 255;
@@ -103,6 +103,7 @@ public class TgColumn {
         this.ColumnPrecision = (int) ret[1];
         this.columnScale = (int) ret[2];
         this.isNullable = (nullCell != null) && !nullCell.isEmpty() ? false : true;
+        this.isPrimaryKey = (nullCell != null) && nullCell.contains("PK") ? true : false;
         this.defaultValue = defaultCell;
         this.comment = commentCell;
         this.columnExplain = columnExplain;
@@ -146,10 +147,10 @@ public class TgColumn {
 
     public String getResultMapAddMethodType() {
         return switch (columnType.split("\\(")[0]) {
-            case "INT" -> "addInt";
+            case "INT","INTEGER" -> "addInt";
             case "BIGINT" -> "addLong";
             case "REAL" -> "addFloat";
-            case "DOUBLE" -> "addDouble";
+            case "DOUBLE","DOUBLE PRECISION" -> "addDouble";
             case "DECIMAL" -> "addDecimal";
             case "CHAR", "CHARACTER", "VARCHAR", "CHAR VARYING", "CHARACTER VARYING" -> "addString";
             case "DATE" -> "addDate";
@@ -270,11 +271,11 @@ public class TgColumn {
     public String getParameterMapAddMethod(String tableName) {
         var sb = new StringBuilder();
         switch (columnType.split("\\(")[0]) {
-            case "INT" ->
+            case "INT","INTEGER" ->
                 sb.append("addInt(\"").append(columnName).append("\",");
             case "BIGINT" -> sb.append("addLong(\"").append(columnName).append("\",");
             case "REAL" -> sb.append("addFloat(\"").append(columnName).append("\",");
-            case "DOUBLE" -> sb.append("addDouble(\"").append(columnName).append("\",");
+            case "DOUBLE","DOUBLE PRECISION" -> sb.append("addDouble(\"").append(columnName).append("\",");
             case "DECIMAL" -> sb.append("addDecimal(\"").append(columnName).append("\",");
             case "CHAR", "CHARACTER", "VARCHAR", "CHAR VARYING", "CHARACTER VARYING" ->
                 sb.append("addString(\"").append(columnName).append("\",");

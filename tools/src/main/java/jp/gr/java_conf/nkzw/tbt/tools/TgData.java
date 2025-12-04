@@ -143,8 +143,8 @@ public class TgData {
                 }
                 // テーブル作成
                 var ddl = table.getDdlDef();
+                LOG.info("create table ddl: {}", ddl);
                 tm.executeDdl(ddl);
-                LOG.info("create table {}", table.getTableName());
                 // インデックス作成
                 for (var indexDef : table.getIndexDefs()) {
                     tm.executeDdl(indexDef);
@@ -249,7 +249,10 @@ public class TgData {
         // 物理テーブル名を取得
         var tableNameRow = searchRow(sheet, 0, "物理テーブル名", 1);
         if (tableNameRow == null) {
-            return null;
+            tableNameRow = searchRow(sheet, 0, "物理エンティティ名", 1);
+            if (tableNameRow == null) {
+                return null;
+            }
         }
         table.setTableName(tableNameRow.getCell(2).toString());
         // LOG.debug("tableName: {}", tableNameRow.getCell(2).toString());
