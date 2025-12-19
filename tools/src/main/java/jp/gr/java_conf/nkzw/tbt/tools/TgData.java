@@ -239,8 +239,8 @@ public class TgData {
                 }
             }
         } catch (EncryptedDocumentException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error loading Excel file", e);
+            throw new RuntimeException("Failed to load Excel file", e);
         }
     }
 
