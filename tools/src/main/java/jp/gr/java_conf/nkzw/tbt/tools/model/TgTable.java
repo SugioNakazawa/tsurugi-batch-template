@@ -305,9 +305,9 @@ public class TgTable {
         return variables;
     }
 
-    public TgBindParameters getTgBnidData(int seed) {
-        if (seed > 999) {
-            var a = 1;
+    public TgBindParameters getTgBindData(int seed) {
+        if (seed > Integer.MAX_VALUE) {
+            seed = 1;
         }
         var parameter = TgBindParameters.of();
         for (var column : columns) {
