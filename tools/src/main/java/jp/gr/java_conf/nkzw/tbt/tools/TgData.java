@@ -212,8 +212,8 @@ public class TgData {
                 LOG.info("write java entity: {}", outputPath.toAbsolutePath());
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error writing Java entities", e);
+            throw new RuntimeException("Failed to write Java entities", e);
         }
     }
 
