@@ -152,8 +152,8 @@ public class TgData {
                 }
             }
         } catch (IOException | InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error creating tables", e);
+            throw new RuntimeException("Failed to create tables", e);
         }
     }
 
