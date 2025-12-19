@@ -24,15 +24,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+
       - name: Find JAR files
         id: findjars
         run: |
-          JARS=$(find . -type f -name "*.jar" -path "*/build/libs/*")
-          echo "JARS=$JARS" >> $GITHUB_ENV
+          find . -type f -name "*.jar" -path "*/build/libs/*" > jars.txt
+          cat jars.txt
 
-      - name: Create GitHub Release
+      - name: Upload JARs to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.JARS }}
+          files: |
+            $(cat jars.txt)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
