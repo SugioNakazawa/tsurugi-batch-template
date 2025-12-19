@@ -122,7 +122,7 @@ public class TgData {
             tm.execute(transaction -> {
                 var count = 1;
                 while (count <= argument.getDataCount()) {
-                    var parameter = table.getTgBnidData(count++);
+                    var parameter = table.getTgBindData(count++);
                     transaction.executeAndGetCount(ps, parameter);
                 }
                 LOG.info("insert count: {}", count - 1);
