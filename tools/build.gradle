@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'jp.gr.java_conf.nkzw.tbt'
-version '0.1.0'
+version '${ICEAXE_VERSION}'
 
 repositories {
     mavenCentral()
@@ -35,7 +35,7 @@ publishing {
 java {
     mainClassName = 'jp.gr.java_conf.nkzw.tbt.tools.TgData'
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
     }
 }
 
@@ -48,7 +48,6 @@ tasks.withType(JavaCompile) { task ->
 }
 
 dependencies {
-    implementation 'com.tsurugidb.iceaxe:iceaxe-core:1.12.0'
     implementation group: 'org.apache.poi', name: 'poi', version: '4.1.2'
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
     implementation 'com.beust:jcommander:1.82'

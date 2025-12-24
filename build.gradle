@@ -1,0 +1,15 @@
+plugins {
+    id 'application'
+}
+
+subprojects{
+
+    apply plugin: 'java'
+
+    group 'jp.gr.java_conf.nkzw.tbt'
+    version '${ICEAXE_VERSION}'
+
+    dependencies {
+        implementation "com.tsurugidb.iceaxe:iceaxe-core:${ICEAXE_VERSION}"
+    }
+}
